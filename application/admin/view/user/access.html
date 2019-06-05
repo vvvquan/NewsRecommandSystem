@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>用户管理-权限设置</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/static/css/basic.css" />
+    <link rel="stylesheet" type="text/css" href="/static/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="/static/bootstrap/css/bootstrap/3.3.6/bootstrap.min.css" />
+    <script src="/static/bootstrap/js/jquery/2.0.0/jquery.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap/3.3.6/bootstrap.min.js"></script>
+</head>
+<style>
+.btn-group button{
+    margin: 0 20px;
+}
+</style>
+<body>
+<div id="app">
+    <div class="header">
+        <span>后台管理系统</span>
+        <span style="float: right;">
+            <a href="javascript:void(0)" @click="login_out">退出</a>
+        </span>
+        <span style="float: right;">{{ admin }}</span>
+    </div>
+
+    <div class="leftNav" id="leftNav">
+        <ul class="nav">
+                <li class="first" name="news" onclick="shenzhan(this)">新闻管理</li>
+                <ul>
+                    <li @click="edit">编辑类型</li>
+                    <li @click="newsList">新闻列表</li>
+                    <li @click="comment">评论审核</li>
+                    <li @click="sys">系统公告</li>
+                </ul>
+                <li class="first active" name="user" onclick="shenzhan(this)">用户管理</li>
+                <ul>
+                    <li @click="userList">用户列表</li>
+                    <li class="choose">权限设置</li>
+                </ul>
+                <li class="first" name="admin" onclick="shenzhan(this)">管理员管理</li>
+                <ul>
+                    <li @click="adminList">管理员列表</li>
+                    <li @click="adminAccess">权限设置</li>
+                </ul>         
+        </ul>
+    </div>
+
+
+        <div class="main">
+            <div class="content">
+                <div class="btn-group">
+                    <button @click="visible2 = true" class="btn btn-success">新增</button>
+                    <button @click="save" class="btn btn-warning">保存</button>
+                    <button @click="choose" class="btn btn-info">全选</button>
+                    <button @click="reverse" class="btn btn-defalut">反选</button>
+                </div>
+                <div class="list" style="margin: 20px 0px">
+                <table class="table table-bordered">
+                    <tr>
+                        <th></th>
+                        <th>权限内容</th>
+                        <th>操作</th>
+                    </tr>
+                    <tr v-for="item in ops" :key="item.id">
+                        <td>
+                            <input type="checkbox" :checked="item.has==1"/>
+                        </td>
+                        <td>{{item.content}}</td>
+                        <td>
+                            <button @click="del(item.id)" class="btn btn-danger">删除</button>
+                        </td>
+                    </tr>
+                </table>
+                </div>
+            </div>
+        </div>
+
+    <div class="footer">
+            <div class="clearfix">
+                <span>广东技术师范大学</span>
+                <span>1509841206@qq.com</span>
+                <span>15计算机科学与技术</span>
+                <span>黎威全</span>
+            </div>
+            <div class="clearfix">
+                <span>Copyright 2015-2019</span>
+                <span>站内搜索</span>
+                <span>投诉举报</span>
+                <span>合作</span>
+            </div>
+            <div class="clearfix">
+                <span>家长信息</span>
+                <span>网络110报警服务</span>
+                <span>中国互联网举报中心</span>
+                <span>互联网违法和不良信息信息中心</span>
+            </div>
+    </div>
+
+    <div class="popWindow small" v-show="visible">
+        <i class="WB_icon" :class="[sign?'success':'fail']"></i><br/>
+        <strong>{{msg}}</strong>
+    </div>
+    <div class="popWindow big" v-show="visible2">
+        <div style="width: 80%; margin: 0 auto;">
+            <input class="form-control" v-model="content" placeholder="填入新增权限的内容" autofocus/><br/>
+        </div>
+        <div style="width: 60%; margin: 0 auto;">
+            <button @click="add(content)" class="btn btn-info">确定</button>
+            <button @click="cancel" class="btn btn-defalut">取消</button>
+        </div>
+    </div>
+
+</div>
+</body>
+<style>
+.popWindow{ 
+    background-color: wheat; 
+    position: fixed; 
+    top: 50%;
+    left: 50%;
+    text-align:center;
+    padding-top: 16px;
+}
+.small{
+    width: 100px; 
+    height: 100px;
+    z-index: 101;
+    background-color: rgb(209, 204, 194); 
+}
+.big{
+    width: 300px; 
+    height: 120px;
+    z-index: 100;
+}
+.WB_icon{
+  display: inline-block;
+  width:50px;
+  height:42px;
+  line-height:40px;
+  background: url('/static/image/icon.png') no-repeat;
+}
+.success{
+  background-position:-370px 5px;
+}
+.fail{
+  background-position:-370px -145px;
+}
+</style>
+<script src="/static/js/vue-2.5.21.min.js"></script>
+<script src="/static/js/nav.js"></script>
+<script>
+    var vm = new Vue({
+        el:'#app',
+        data: {
+            admin: '',
+            ops: [],
+            //弹窗
+            visible: false,
+            sign: true,
+            msg: '操作成功',
+            //弹出面板
+            visible2: false,
+            content: ''
+        },
+        created() {
+            tmp = sessionStorage.getItem('username')
+            if(tmp != null) this.admin = tmp
+            //权限列表
+            url = 'http://localhost:82/admin/userAccessList'
+            fetch(url)
+            .then(res => res.json())
+            .then(jsonObj => {
+                this.ops = jsonObj
+            })
+            .catch(e => {console.log(e)})                
+        },
+        methods: {
+            edit(){ window.location.href = 'http://localhost:82/admin/edit' },
+            newsList(){ window.location.href = 'http://localhost:82/admin/newsList' },
+            comment(){ window.location.href = 'http://localhost:82/admin/comment' },
+            sys(){ window.location.href = 'http://localhost:82/admin/sys' },
+            userList(){ window.location.href = 'http://localhost:82/admin/userList' },
+            userAccess(){ window.location.href = 'http://localhost:82/admin/userAccess' },
+            resetPass(){ window.location.href = 'http://localhost:82/admin/resetPass' },
+            adminList(){ window.location.href = 'http://localhost:82/admin/index' },
+            adminAccess(){ window.location.href = 'http://localhost:82/admin/adminAccess' },
+            resetAdminPass(){ window.location.href = 'http://localhost:82/admin/resetAdminPass' },
+            //全选
+            choose(){
+                for(i=0; i < this.ops.length; i++){
+                    this.ops[i]['has'] = 1
+                }
+            },
+            //反选
+            reverse(){
+                for(i=0; i < this.ops.length; i++){
+                    if(this.ops[i]['has'] == 1){
+                        this.ops[i]['has'] = 0
+                    } else {
+                        this.ops[i]['has'] = 1   
+                    }
+                }
+                console.log(this.ops)
+            },
+            //退出
+            login_out(){
+                sessionStorage.clear()
+                window.location.href = 'http://localhost:82/admin/login_out'
+            },
+            //取消按钮
+            cancel(){
+                this.visible2 = false
+                this.content = ''
+                this.visible = false
+            },
+            popup(msg, sign, time){
+                this.msg = msg
+                this.sign = sign || true
+                this.visible = true
+                time = time || 1500
+                setTimeout(() => {
+                    this.visible = false
+                }, time)
+            },
+            //新增权限内容
+            add(content){
+                if(content == ''){
+                    this.popup('不能为空', false)
+                    return
+                }
+                x = {
+                    'id':-1, 'role':0, 'has':1, 'content': this.content
+                }
+                this.visible2 = false
+                this.ops.push(x)
+                this.content = ''
+                // url = 'http://localhost:82/admin/addUserAccess/'+ content
+                // fetch(url)
+                // .then(res => res.json())
+                // .then(jsonObj => {
+                    
+                // })
+                // .catch(e => {console.log(e)})  
+            },
+            //编辑权限内容
+            editContent(id, content){
+                this.content = content
+                this.visible2 = true
+                i = 0
+                for(i=0; i < this.ops.length; i++){
+                    if(op[i]['id'] == id){
+                        op[i]['content'] = this.content
+                    }
+                }
+                // url = 'http://localhost:82/admin/userAccess/edit'
+                // fetch(url)
+                // .then(res => res.json())
+                // .then(jsonObj => {
+                    
+                // })
+                // .catch(e => {console.log(e)})  
+            },
+            //删除权限内容
+            del(id){
+                k = -1
+                for(i=0; i < this.ops.length; i++){
+                    if(this.ops[i]['id'] == id){
+                        k = i
+                        break
+                    }
+                }
+                if(k != -1) this.ops.splice(k, 1)
+            },
+            //保存当前的所有权限拥有情况
+            save(){
+                url = 'http://localhost:82/admin/userAccess/save'
+                header = {
+                    headers: {'content-type': 'application/json'},
+                    type: 'post',
+                    body: JSON.stringify(this.ops)
+                }
+                fetch(url, header)
+                .then(res => res.json())
+                .then(jsonObj => {
+                    if(jsonObj['msg'] == "ok"){
+                        this.popup('保存成功')
+                    } else {
+                        this.popup('保存失败', false)
+                    }
+                })
+                .catch(e => {console.log(e)})  
+            },
+        }
+    })
+</script>
+</html>

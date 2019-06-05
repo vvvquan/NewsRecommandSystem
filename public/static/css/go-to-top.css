@@ -1,0 +1,55 @@
+.share{
+    right:10px;
+    bottom: 65px;    
+}
+.top{
+    right:10px;
+    bottom: 10px;
+}
+.box{
+    position:fixed;
+    height:30px;
+    width: 50px;    
+    text-align:center;
+    padding-top:20px;    
+    background-color: darkgray;
+    border-radius: 20%;
+    overflow: hidden;
+}
+.box:hover:before{
+    top:50%
+}
+.box.top:hover .box-in{
+    visibility: hidden;
+}
+.box:before{
+    position: absolute;
+    top: -50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    width: 40px;
+    color:peru;
+    font-weight:bold;
+}
+.box.top:before{
+    content:'回到顶部';
+}  
+.box.share:before{
+    content:'分享QQ';
+}   
+.box-in{
+    visibility: visible;
+    display:inline-block;
+    height:20px;
+    width: 20px;
+    border: 3px solid black;
+    border-color: white transparent transparent white;
+    transform:rotate(45deg);
+}
+.box-qq{
+    visibility: visible;
+    display:inline-block;
+    height:20px;
+    width: 20px;
+    background-color: red;    
+}

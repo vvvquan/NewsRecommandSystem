@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>新闻管理-新闻列表</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/static/css/basic.css" />
+    <link rel="stylesheet" type="text/css" href="/static/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="/static/bootstrap/css/bootstrap/3.3.6/bootstrap.min.css" />
+    <script src="/static/bootstrap/js/jquery/2.0.0/jquery.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap/3.3.6/bootstrap.min.js"></script>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <span style="float: right;">
+            <a href="javascript:void(0)" @click="login_out">退出</a>
+        </span>
+        <span style="float: right;">{{ admin }}</span>
+    </div>
+
+    <div class="leftNav" id="leftNav">
+      <ul class="nav">
+              <li class="first active" name="news" onclick="shenzhan(this)">新闻管理</li>
+              <ul>
+                  <li @click="edit">编辑类型</li>
+                  <li class="choose">新闻列表</li>
+                  <li @click="comment">评论审核</li>
+                  <li @click="sys">系统公告</li>
+              </ul>
+              <li class="first" name="user" onclick="shenzhan(this)">用户管理</li>
+              <ul>
+                  <li @click="userList">用户列表</li>
+                  <li @click="userAccess">权限设置</li>
+              </ul>
+              <li class="first" name="admin" onclick="shenzhan(this)">管理员管理</li>
+              <ul>
+                  <li @click="adminList">管理员列表</li>
+                  <li @click="adminAccess">权限设置</li>
+              </ul>         
+      </ul>
+  </div>
+
+
+    <div class="main">
+        <!-- 列表 -->
+        <div class="page-panel">
+          <div class="page-list" style="width: 80%">
+          <table class="table table-border">
+              <tr>
+                <th>新闻标题</th><th>新闻类型</th><th>操作</th>
+              </tr>
+              <tr v-for="item in titles" :item="item">
+                <td>{{ item.topic }}</td>
+                <td>
+                    <select v-model="item.typeId">
+                        <option v-for="tag in tags" :value="tag.typeId">{{tag.typeName}}</option>
+                    </select>
+                </td>
+                <td>
+                    <button class="btn btn-info" @click="saveNewsType(item.id,item.typeId)">保存</button>
+                </td>
+              </tr>
+          </table>
+          </div>
+        </div>
+        <!-- 分页 -->
+        <div class="pager" style="margin:-25px 0;">
+          <ul class="pagination">
+            <li @click="getPage(1)"><a href="javascript:void(0)">首页</a></li>
+            <li v-for="i in indexes" @click="getPage(i)" :class="cur==i?'active':''"><a href="javascript:void(0)">{{i}}</a></li>
+            <li @click="getPage(pageTotal)"><a href="javascript:void(0)">末页</a></li>
+          </ul>
+        </div>
+    </div>
+
+    <div class="footer">
+            <div class="clearfix">
+                <span>广东技术师范大学</span>
+                <span>1509841206@qq.com</span>
+                <span>15计算机科学与技术</span>
+                <span>黎威全</span>
+            </div>
+            <div class="clearfix">
+                <span>Copyright 2015-2019</span>
+                <span>百度提供站内搜索</span>
+            </div>
+            <div class="clearfix">
+                <span>家长信息</span>
+                <span>网络110报警服务</span>
+                <span>中国互联网举报中心</span>
+                <span>互联网违法和不良信息信息中心</span>
+            </div>
+    </div>
+
+    <div class="popWindow small" v-show="visible">
+      <i class="WB_icon" :class="[sign?'success':'fail']"></i><br/>
+      <strong>{{msg}}</strong>
+    </div>
+
+</div>
+</body>
+<style>
+  .popWindow{ 
+      background-color: wheat; 
+      position: fixed; 
+      top: 50%;
+      left: 50%;
+      text-align:center;
+      padding-top: 16px;
+  }
+  .small{
+      width: 100px; 
+      height: 100px;
+      z-index: 101;
+      background-color: rgb(209, 204, 194); 
+  }
+  .big{
+      width: 300px; 
+      height: 120px;
+      z-index: 100;
+  }
+  .WB_icon{
+    display: inline-block;
+    width:50px;
+    height:42px;
+    line-height:40px;
+    background: url('/static/image/icon.png') no-repeat;
+  }
+  .success{
+    background-position:-370px 5px;
+  }
+  .fail{
+    background-position:-370px -145px;
+  }
+</style>
+<script src="/static/js/vue-2.5.21.min.js"></script>
+<script src="/static/js/nav.js"></script>
+<script>
+  var vm = new Vue({
+    el: "#app",
+    data:{
+      admin: '',
+      tags: [],
+      newsType: '',
+      titles: [],   //显示新闻标题
+      typeId: 0,   //某条新闻将要保存的类型编号
+      pageListNum: 10, //每页10个标题
+      pageTotal: 0,  //分页总数
+      newsTotal: 0,  //新闻总数
+      cur: 1,      //当前的页面
+      //弹窗
+      sign: true,
+      visible: false, 
+      msg: '操作成功'
+    },
+    created() {
+      tmp = sessionStorage.getItem('username')
+      if(tmp != null) this.admin = tmp
+      //获取已有的所有新闻类型
+      url = "http://localhost:82/admin/getAllNewsType",
+      fetch(url)
+      .then(res => res.json())
+      .then(jsonObj => {
+        types = jsonObj['types']
+        //console.log(types)
+        for(i = 0; i < types.length; i++){
+           this.tags.push(types[i])
+        }
+      }).catch(e => console.log(e)) 
+      //获取新闻总数
+      url = "http://localhost:82/admin/getNewsTotal",
+      fetch(url)
+      .then(res => res.json())
+      .then(jsonObj => {
+        this.newsTotal = jsonObj['newsTotal']
+        this.pageTotal = Math.ceil(this.newsTotal / this.pageListNum)
+      }).catch(e => { 
+        console.log(e)
+        alert('获取新闻标题总数失败') 
+      })
+      //默认获取第一页的新闻标题
+      url = "http://localhost:82/admin/getNewsTitle/1/" + this.pageListNum,
+      fetch(url)
+      .then(res => res.json())
+      .then(jsonObj => {
+        this.titles = jsonObj
+      }).catch(e => { 
+        console.log(e)
+        alert('获取当前页的新闻标题列表失败')
+      })            
+    },
+    computed: {
+      indexes(){
+        if(this.cur < 5){
+          start = 1
+          end = 10
+        } else
+        if(this.cur > this.pageTotal - 5){
+          start = this.pageTotal - 9
+          end = this.pageTotal
+        } else {
+          start = this.cur - 4
+          end = this.cur + 5
+        }
+        let arr = []
+        for(i = start; i <= end; i++) arr.push(i)
+        
+        return arr
+      }
+    },
+    methods:{
+      edit(){ window.location.href = 'http://localhost:82/admin/edit' },
+      newsList(){ window.location.href = 'http://localhost:82/admin/newsList' },
+      comment(){ window.location.href = 'http://localhost:82/admin/comment' },
+      sys(){ window.location.href = 'http://localhost:82/admin/sys' },
+      userList(){ window.location.href = 'http://localhost:82/admin/userList' },
+      userAccess(){ window.location.href = 'http://localhost:82/admin/userAccess' },
+      adminList(){ window.location.href = 'http://localhost:82/admin/index' },
+      adminAccess(){ window.location.href = 'http://localhost:82/admin/adminAccess' },
+      //弹窗
+      popup(msg, sign, time){
+        this.msg = msg
+        this.sign = sign || true
+        this.visible = true
+        time = time || 1500
+        setTimeout(() => {
+          this.visible = false
+        }, time)
+      },
+      //获取某页的新闻列表标题
+      getPage: function(pageNum){
+        //console.log(pageNum)
+        url = "http://localhost:82/admin/getNewsTitle/"+pageNum+"/" + this.pageListNum,
+        fetch(url)
+        .then(response => response.json())
+        .then(jsonObj => {
+          this.titles = jsonObj
+          this.cur = pageNum
+          //console.log(this.titles)
+        })
+        .catch(e => console.log(e) ) 
+      },
+      saveNewsType: function(newsId, typeId){
+        header = { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({'newsId':newsId, 'typeId':typeId})
+        }
+        url = "http://localhost:82/admin/saveNewsType",
+        fetch(url, header)
+        .then(response => response.text())
+        .then(txt => {
+          if(txt == "ok"){
+            this.popup('保存成功')
+          } else {
+            this.popup('保存失败', false)
+          }
+        }).catch(e => { this.popup('保存失败', false) })         
+      },
+      login_out: function(){
+        window.location.href = "http://localhost:82/admin/login_out"
+      }
+    }
+  })
+</script>
+</html>

@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>首页-新闻推荐系统</title>
+  <link rel="stylesheet" type="text/css" href="/static/css/article.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/index/index.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/scroll_guanzhu.css">
+	<style type="text/css">
+		body{
+      margin: 0;
+			padding: 0;
+      overflow-y: scroll;
+      background-image: url('/static/image/body_repeat.png');
+    }
+		.header{
+      border-top: 3px solid orange;
+			background-color:white;
+			min-height: 48px;
+      width: 100%;
+			display: flex;
+      -webkit-flex-direction: row;
+      -moz-flex-direction: row;
+      -o-flex-direction: row;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+			position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+		}
+		.tab{
+			display: flex;
+      -webkit-flex-direction: row;
+      -moz-flex-direction: row;
+      -o-flex-direction: row;
+			flex-direction: row;
+      -webkit-justify-content: center;
+      -moz-justify-content: center;
+      -o-justify-content: center;
+			justify-content: center;
+		}
+		.tab span{
+			font-size: 20px;
+      font-weight: normal;
+			color: #333333;
+			padding: 10px 20px;
+		}
+		.tab span.active{
+			background-color: orange;
+      color: white;
+		}
+		.content{
+      position: relative;
+      top: 48px;
+      left: 0;
+			padding: 60px 0;
+			width: 40%;
+      height: 900px;
+			display: flex;
+      -webkit-flex-direction: column;
+      -moz-flex-direction: column;
+      -ms-flex-direction: column;
+      -o-flex-direction: column;
+      flex-direction: column;
+      margin: 0 auto;
+      display: none;
+		}
+		.content.active{
+			display: block;
+		}	
+    .popmenu{
+      padding: 0 10px 15px 10px;
+    }
+    .popmenu:hover + div.menu{
+      display: block;
+    }
+    .menu{
+      position: absolute;
+      top: 50px;
+      display: none;
+    }
+    .menu:hover{
+      display: block;
+    }
+		.menu span{
+      background-color: white;
+      color: silver;
+      display: block;
+      width: 90px;
+      font-size: small;
+      padding: 5px 0;
+      text-align: center;
+      border-bottom: 1px solid silver;
+		}
+    .menu span:hover{
+      color: orange;
+    }
+		.dialog{
+			position: fixed;
+      top: 40px;
+      padding: 40px 10px;
+      background-color: whitesmoke;
+		}
+		.errorMsg div{
+			color: red;
+			font-size: 10px;
+		}
+		.bottom{
+			text-align: center;
+      padding: 10px 0;
+      height: 30px;
+      background-color: white;
+		}
+  </style>
+
+  <style type="text/css">
+    #box{
+        width: 80px;
+        height: 40px;
+        background: #fd7430;
+        border:none;
+        border-radius: 5px;
+        outline: none;
+        color: #fff;
+    }
+
+    .div-container{
+        position: fixed;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index:200;
+        background: rgba(0,0,0,0.5) !important;/* 兼容ie几不知道，好像ie5 */
+        background:#000;
+        filter: Alpha(opacity=60);
+    }
+    /*设置div-child的父元素主要是将要此元素的父元素透明特性继承过来，故div-child不会半透明，而是不透明，解决了父元素透明，子元素也透明的bug */
+    .div-child-container{
+        position: relative;
+        width: 400px;
+        height: 200px;
+        margin: auto;
+        top: 30%;
+        background: #fff;
+        z-index: 250; /*z-index要放在父元素之上 */
+    }
+
+    .div-child{
+        width: 400px;
+        height: 200px;
+        margin: auto;
+        background: #fff;
+        z-index: 300; /*z-index要放在父元素之上 */
+        display: flex;
+        -webkit-flex-direction: column;
+        -moz-flex-direction: column;
+        -ms-flex-direction: column;
+        -o-flex-direction: column;
+        flex-direction: column;
+        justify-content: space-around;
+        -webkit-align-items: center;
+        -moz-align-items: center;
+        -ms-align-items: center;
+        -o-align-items: center;
+        align-items: center;
+    }
+
+    .div-child .my-btn button{
+        width: 80px;
+        height: 40px;
+        background:#fd7430;
+        border: none;
+        border-radius: 5px;
+        color: #fff;
+        outline: none;
+    }
+
+    .div-child .my-btn button:first-child(){
+        margin-right: 20px;
+    }
+</style>
+<style>
+.leftNav{
+  position: fixed;
+  left: 15%;
+  top: 50px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.leftNav ul{
+  margin: 15px auto;
+  padding: 0 5px;
+}
+.leftNav ul li{
+  list-style: none;
+}
+.leftNav ul:after{
+  border-bottom: 2px solid black;
+}
+.leftNav ul li:hover{
+  background-color: lightblue;
+}
+.leftNav ul li:active{
+  background-color: lightblue;
+}
+.leftNav ul li a{
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  padding: 0 65px 0 15px;
+  height: 34px;
+  line-height: 34px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.news-container{
+  padding: 10px;
+}
+
+.search-menu{
+  background-color: white;
+}
+.search-menu ul{
+  list-style: none;
+  padding-left: 10px;
+}
+.search-menu ul li{
+  background-color: lightblue;
+  color: orange;
+}
+input[id="search-menu"]:focus + div.search-menu{
+  display: block;
+}
+</style>
+<!-- 用户信息模块样式 -->
+<style>
+  .module{ 
+    width: 260px; 
+    height: 500px; 
+    position: fixed;  
+    top: 80px;
+  }
+  @media screen and (min-width: 1200px) {
+    .module{
+      right: 80px;
+      display: block;
+    }
+  }
+  @media screen and (min-width: 1000px) and (max-width: 1200px) {
+    .module{
+      right: 10px;
+      display: block;
+    }    
+  }
+  @media screen and (min-width: 900px) and (max-width: 1000px) {
+    .module{
+      display: block;
+    }    
+  }
+  @media screen and (max-width: 900px) {
+    .module{
+      display: none;
+    }
+    .content{
+      width: 60%;
+      left: 5%;
+    }
+    .leftNav{
+      left: 5%;
+    }
+  }
+</style>
+</head>
+
+<body>      
+		<div class="header">
+      <div class="tab">
+          <span onclick="window.location.href='http://localhost:82'">首页</span>
+          <span id="tab2" onclick="changeTab(2)" v-show="userId > 0">我的关注</span>
+          <span id="tab1" onclick="changeTab(1)" class="active">最新</span>
+          <span id="tab0" onclick="changeTab(0)">推荐</span>
+          <span v-if="userId == 0" class="btn" @click="login()">登录</span>
+				  <span v-if="userId == 0" class="btn" @click="reg()">注册</span>
+				  <span v-if="userId > 0">
+            <div class="popmenu">{{username}}，你好</div>
+            <div class="menu">
+              <span @click="manage">修改个人资料</span>
+              <span @click="stat">阅读数据统计</span>
+              <span @click="exit">退出</span>
+            </div>
+          </span>
+      </div>
+      <!-- <div style="padding: 0 20px">
+        <input name="search" class="search" /><button>搜索</button>
+      </div> -->
+		</div>
+    <!-- 头部结束-->
+
+    <!-- 自定义背景 -->
+    <div style="position:fixed; top:50px;right:0;width:40px;height:44px">
+      <a herf="javascript:void(0)" class="WB_icon upRightBg"></a>
+    </div>
+
+    <!-- 左侧导航栏 -->
+    <div class="leftNav">
+      <ul>
+        <li><a herf="http://localhost:82/me/collect">我的收藏</a></li>
+        <li><a herf="http://localhost:82/me/good">我的赞</a></li>
+        <li><a href="http://localhost:82/me/history">阅读记录</a></li>
+      </ul>
+      <ul>
+        <li><a herf="http://localhost:82/hot/news">热门新闻</a></li>
+        <li><a herf="http://localhost:82/hot/search">热门搜索</a></li>
+        <li><a herf="http://localhost:82/hot/guanzhu">热门关注</a></li>
+      </ul>
+      <ul>
+          <li><a herf="http://localhost:82/friend">好友圈</a></li>
+          <li><a herf="http://localhost:82/user/message">个人通知</a></li>
+      </ul>
+      <ul>
+          <li><a herf="http://localhost:82/sys/message">系统消息</a></li>
+          <li><a herf="http://localhost:82/dailyTask">每日任务</a></li>
+      </ul>
+    </div>
+    <!-- 左侧导航栏 结束-->
+
+  <!-- 右侧信息栏 -->
+  <div class="module">
+    <!-- 右侧用户信息模块 -->
+    <div id="userModule" class="userModule">
+      <img src="/static/image/user_bg.jpg" style="width: 100%"/>
+      <div id="face" class="user_face">
+        <img src="/static/image/face.gif"/>
+      </div>
+      <div style="text-align: center; height: 0;">
+        <span>{{username}}</span>
+        <span>Lv{{level}}</span>
+      </div>
+      <div class="count">
+        <ul>
+          <li>
+            <strong>{{followNum}}</strong><br/><span>粉丝</span>
+          </li>
+          <li>
+            <strong>{{guanzhuNum}}</strong><br/><span>关注</span>
+          </li>
+          <li>
+            <strong>{{readNum}}</strong><br/><span>阅读量</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tabModule">
+        <div class="tab">
+          <ul class="tab-nav">
+            <li class="tab-nav-title active recent" id="recent">今日最新</li>
+            <li class="tab-nav-title hot" id="hot">本周热门</li>
+          </ul>
+        </div>
+        <div class="tab-content">
+          <ul class="tab-content-group" id="tab-content-recent" style="display: block">
+            <li v-for="item in recent" :key="item.newsId">
+              <div class="tab-item-img">
+                <a href="#">
+                  <div class="tab-item-thumb">
+                    <img src="/static/image/new.gif" alt="最新"/>
+                  </div>
+                </a>  
+              </div>
+              <div class="tab-item-text">
+                <p class="tab-item-title">{{item.title}}</p>
+                <span class="tab-item-date">{{item.date}}</span>
+                <span class="tab-item-category"><a href="#">{{item.source}}</a></span>
+              </div>
+            </li>
+          </ul>
+          <ul class="tab-content-group" id="tab-content-hot" style="display: none">
+              <li v-for="item in hot" :key="item.newsId">
+                <div class="tab-item-img">
+                  <div class="tab-item-thumb">
+                      <a href="#"><img src="/static/image/hot.gif" alt="热门"/></a>
+                  </div>  
+                </div>
+                <div class="tab-item-text">
+                  <p class="tab-item-title">{{item.title}}</p>
+                  <span class="tab-item-date">{{item.date}}</span>
+                  <span class="tab-item-category"><a href="#">{{item.source}}</a></span>
+                </div>
+              </li>
+          </ul>
+        </div>
+      </div>
+  </div>
+  <!-- 右侧信息栏 结束 -->
+
+    <!-- 推荐新闻  -->
+			<div id="content0" class="content">
+					<div id = "appTuijian">
+              <div class="news-container" v-for="item in tuijianNews" :key="item.newsId">
+                <div class="article-header">
+                    <span class="context" @click="item.menu = !item.menu"></span>
+                    <div class="contextmenu" v-show="item.menu">
+                      <ul>
+                          <li @click="">取消关注</li>
+                          <li @click="notLike(item.newsId)">不感兴趣</li>
+                          <li @click="">助力上热门</li>
+                          <li @click="">举报投诉</li>
+                      </ul>
+                    </div>
+                </div>
+              <div class="article">
+                <div class="topic">{{item.topic}}</div>
+                <div class="time">{{item.time}}</div>
+                <div class="detail">{{item.detail}}
+                  <a :href="['/detail/'+item.newsId]">[详情]</a>
+                </div>
+              </div>
+              <div class="article-footer">
+                <div class="article-footer-tab">
+                  <span @click="">收藏</span>
+                  <span @click="">转发</span>
+                  <span @click="item.review = !item.review">评论</span>
+                  <span @click="">点赞</span>
+                </div>
+                <div class="article-review" v-show="item.review">
+                  <div>
+                    <label>评论内容</label>
+                    <input type="text" placeholder="输入评论" width="100%"/>
+                    <button>提交</button>
+                    <!--  查看所有评论则跳转到详情页  -->
+                  </div>
+                  <div style="text-align: center; color: orange">
+                      <a :href="['/detail/'+item.newsId]">更多评论>>></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id = "tuijian" class="bottom" @click="load">{{ text }}</div>
+      </div>
+      
+      <!-- 最新新闻  -->
+			<div id="content1" class="content active">
+        <div class="news-container" v-for="item in latestNews" :key="item.newsId">
+          <div class="article-header">
+              <span class="context" @click="item.menu = !item.menu"></span>
+              <div class="contextmenu" v-show="item.menu">
+                <ul>
+                    <li @click="">取消关注</li>
+                    <li @click="notLike(item.newsId)">不感兴趣</li>
+                    <li @click="">助力上热门</li>
+                    <li @click="">举报投诉</li>
+                </ul>
+              </div>
+          </div>  
+          <div class="article">
+            <div class="topic">{{item.topic}}</div>
+            <div class="time">{{item.time}}</div>
+            <div class="detail">{{item.detail}}
+              <a :href="['/detail/'+item.newsId]">[详情]</a>
+            </div>
+          </div>
+          <div class="article-footer">
+            <div class="article-footer-tab">
+              <span @click="">收藏</span>
+              <span @click="">转发</span>
+              <span @click="item.review = !item.review">评论</span>
+              <span @click="">点赞</span>
+            </div>
+            <div class="article-review" v-show="item.review">
+              <div style="text-align: center">
+                <label>评论内容</label>
+                <input type="text" placeholder="输入评论" width="100%"/>
+                <button @click="">提交</button>
+              </div>
+              <!-- <div v-for="comments in item.commentArr" :key="comments.commentId">
+                <div>{{comments.content}}</div>
+                <div>
+                  <span @click="">回复</span>
+                  <span @click="">删除</span>
+                </div>
+              </div> -->
+              <div style="text-align: center; color: orange">
+                <a :href="['/detail/'+item.newsId]">更多评论>>></a>
+              </div>
+            </div>
+          </div>        
+        </div>        
+        <div id = "latest" class="bottom" @click="load">{{ text }}</div> 
+      </div>
+
+    <!-- 关注新闻  -->
+    <div id="content2" class="content">
+      <div class="news-container" v-for="item in guanzhuNews" :key="item.newsId">
+          <div class="article-header">
+              <span class="context" @click="item.menu = !item.menu"></span>
+              <div class="contextmenu" v-show="item.menu">
+                <ul>
+                    <li @click="">取消关注</li>
+                    <li @click="notLike(item.newsId)">不感兴趣</li>
+                    <li @click="">助力上热门</li>
+                    <li @click="">举报投诉</li>
+                </ul>
+              </div>
+          </div>
+        <div class="article">
+          <div class="topic">{{item.topic}}</div>
+            <div class="time">{{item.time}}</div>
+            <div class="detail">{{item.detail}}
+                <a :href="['/detail/'+item.newsId]">[详情]</a>
+            </div>
+        </div>
+        <div class="article-footer">
+          <div class="article-footer-tab">
+            <span @click="">收藏</span>
+            <span @click="">转发</span>
+            <span @click="item.review = !item.review">评论</span>
+            <span @click="">点赞</span>
+          </div>
+          <div class="article-review" v-show="item.review">
+            <div style="text-align: center">
+              <label>评论内容</label>
+              <input type="text" placeholder="输入评论" width="100%"/>
+              <button @click="">提交</button>
+            </div>
+            <!-- <div v-for="comments in item.commentArr" :key="comments.commentId">
+              <div>{{comments.content}}</div>
+              <div>
+                <span @click="">回复</span>
+                <span @click="">删除</span>
+              </div>
+            </div> -->
+            <div style="text-align: center; color: orange">
+              <a :href="['/detail/'+item.newsId]">更多评论>>></a>
+            </div>
+          </div>
+        </div> 
+      </div>
+      <div id = "guanzhu" class="bottom" @click="load">{{ text }}</div>
+    </div>
+
+</body>
+<script>
+function changeTab(id){
+	document.getElementById("tab0").classList.remove('active')
+	document.getElementById("tab1").classList.remove('active')
+	document.getElementById("tab2").classList.remove('active')
+	document.getElementById("content0").classList.remove('active')
+	document.getElementById("content1").classList.remove('active')
+	document.getElementById("content2").classList.remove('active')
+	document.getElementById("content"+id).classList.add('active')
+	document.getElementById("tab"+id).classList.add('active')
+}
+</script>
+<script src="/static/js/vue-2.5.21.min.js"></script>
+<script src="/static/js/md5.js"></script>
+<script>
+var vm = new Vue({
+	el: '.header',
+	data: {
+		userId: 0,
+    username: '游客'
+	},
+	created(){
+        temp = sessionStorage.getItem('userId')
+        this.userId = (temp == null ? 0 : parseInt(temp))
+        temp = sessionStorage.getItem('username')
+        this.username = (temp == null ? '游客' : temp)
+    },
+	methods: {
+	  login(){
+      window.location.href = 'http://localhost:82/user/login'
+	  },
+    reg(){
+      window.location.href = 'http://localhost:82/user/reg'
+    },
+    manage(){
+      window.location.href = 'http://localhost:82/manage/info'
+    },
+    exit(){  //退出帐号
+		  this.userId = 0
+      // var url = 'http://localhost:82/login_out'
+      // fetch(url)
+      // .then(response => {
+      //   this.initial()
+        sessionStorage.clear()
+        window.location.href = "http://localhost:82/user/login"
+      // })
+      // .catch(e => console.log("error: "+e))
+    },
+    stat(){
+      window.location.href = "http://localhost:82/stat/data"
+    }
+  }
+})
+</script>
+<script>
+// 右侧用户信息栏  
+var vm1 = new Vue({
+  el: '.module',
+  data: {
+    username: '用户名',
+    level: 0,
+    guanzhuNum: 0,
+    followNum: 0,
+    readNum: 0,
+    recent: [
+      {'newsId':1, 'title':'IEEE禁止华为员工参与编审', 'date':'2019-5-30', 'source':'新快报'},
+      {'newsId':4, 'title':'生活大爆炸的电梯修好了', 'date':'2019-5-30', 'source':'中国青年报'},
+      {'newsId':13, 'title':'广州近几天都将迎来大雨', 'date':'2019-5-30', 'source':'参考消息'}
+    ],
+    hot: [
+      {'newsId':2, 'title':'华为推出自研鸿蒙系统', 'date':'2019-5-29', 'source':'微博'},
+      {'newsId':3, 'title':'香港4平米房中房', 'date':'2019-5-28', 'source':'今日头条'},
+      {'newsId':5, 'title':'生活大爆炸大结局', 'date':'2019-5-29', 'source':'新快讯'}
+    ]
+  },
+  created(){
+    tmp = sessionStorage.getItem('username')
+    if(tmp != null) this.username = tmp
+    url = 'http://' + window.location.hostname + ':82/userinfo'
+    fetch(url)
+    .then(res => res.json())
+    .then(jsonObj => { 
+      //console.log(jsonObj)
+      this.level = jsonObj['level']
+      this.followNum = jsonObj['followNum']
+      this.guanzhuNum = jsonObj['guanzhuNum']
+      this.readNum = jsonObj['readNum']
+    })
+    .catch(e => console.log(e))
+    // 获取 今日最新 和 今周最热 各自3条新闻
+    url = 'http://' + window.location.hostname + ':82/recent_hot'
+    // fetch(url)
+    // .then(res => res.json())
+    // .then(jsonObj => { 
+    //   console.log(jsonObj)
+    //   this.recent = jsonObj['recent']
+    //   this.hot = jsonObj['hot']
+    // })
+    // .catch(e => console.log(e))
+  }
+})  
+</script>
+<script>
+var vm2 = new Vue({
+      el: '#content0',
+      data: {
+        numTuijian: 2, //加载推荐给用户的第几个新闻
+        more: true,
+        text: '加载更多',
+        loading: false,    //是否加载中
+        tuijianNews: []
+      },
+      created() {
+        temp = sessionStorage.getItem('numTuijian')
+        this.numTuijian = (temp == null ? 2 : parseInt(temp))
+        this.more = true
+        for(i = 1; i <= this.numTuijian; i++){
+          obj = sessionStorage.getItem("keyTuijian"+i)
+          jsonObj = JSON.parse(obj)
+          //console.log(jsonObj)
+          if(jsonObj == null){
+            return
+          }
+          let data = {
+                'newsId': jsonObj['newsId'],
+                'topic': jsonObj['topic'],
+                'time': jsonObj['date'],
+                'source': jsonObj['source'],
+                'detail': jsonObj['content'],
+                'menu': false,
+                'review': false
+              }
+          this.tuijianNews.push(data)           
+        }
+      },
+      methods: {
+        load: function() { // 向后端获取新的新闻
+          if(this.loading == true) return  //加载中点击加载按钮无效
+          if(this.more == false) return
+          sessionStorage.setItem('numTuijian', ''+this.numTuijian)
+          url = 'http://localhost:82/1/data/' + this.numTuijian
+          this.text = '加载中......'
+          this.loading = true
+          fetch(url)
+            .then(response => response.json())
+            .then(jsonObj => {
+              if(jsonObj.length == 0){
+                this.more = false
+                this.loading = false
+                this.text = '没有更多推荐的新闻了'
+                return
+              }
+              sessionStorage.setItem('keyTuijian'+this.numTuijian, JSON.stringify(jsonObj))
+              let data = {
+                'newsId': jsonObj['newsId'],
+                'topic': jsonObj['topic'],
+                'time': jsonObj['date'],
+                'source': jsonObj['source'],
+                'detail': jsonObj['content'],
+                'menu': false,
+                'review': false
+              }
+              this.tuijianNews.push(data)
+              this.text = '加载更多'
+              this.loading = false
+              this.numTuijian = this.numTuijian + 1 //准备下一篇
+            })
+            .catch(e => {
+              this.loading = false
+              this.text = '加载失败，请重试'
+              //console.log("error", e)
+            })
+        },
+        scroll() {
+          let isLoading = false
+          window.onscroll = () => {
+            // 距离底部200px时加载一次
+            let bottomOfWindow = document.documentElement.offsetHeight - document.documentElement.scrollTop - window.innerHeight
+            if (bottomOfWindow <= 200 && isLoading == false) {
+              isLoading = true
+              console.log('快到底部了')
+              this.load()
+              setTimeout(function(){ isLoading = false }, 1000)
+            }
+          }
+        },
+        notLike(id){
+          let len = this.tuijianNews.length
+          let k = -1
+          for(i = 0; i < len; i++){
+            if(this.tuijianNews[i]['newsId'] == id){
+              k = i
+            }
+          }
+          if(k != -1){
+            this.tuijianNews.splice(k, 1)
+          }
+        }
+      },
+      mounted() {
+        this.scroll()
+      }
+    })
+</script>
+<script>
+var vm3 = new Vue({
+      el: '#content1',
+      data: {
+        numLatest: 1, //加载推荐给用户的第几个新闻
+        more: true,
+        text: '加载更多',
+        loading: false,    //是否加载中
+        latestNews: [
+        // {
+        // 'newsId': 1,
+        // 'topic':'新闻标题2',
+        // 'time':'2019-04-01 12:10:30',
+        // 'source':'青年报',
+        // 'detail':'原来游戏里面走位是真的 夕阳 · 小朋友· 狗狗 当你的Gopro被狗狗叼走时…..好一场生死时速 哈哈哈哈哈哈哈哈 爱豆组合的主打曲如果变成80年代的曲风会是什么样的效果？ 《权力的游戏》新推出的栏目“Gam...',
+        // 'menu': false,
+        // 'review': false
+        // }
+        ],
+      },
+      created() {
+        temp = sessionStorage.getItem('numLatest')
+        if(temp !== null) this.numLatest = temp
+        this.more = true
+        for(i = 1; i <= this.numLatest; i++){
+          obj = sessionStorage.getItem("keyLatest"+i)
+          jsonObj = JSON.parse(obj)
+          //console.log(jsonObj)
+          if(jsonObj == null){
+            return
+          }
+          let data = {
+                'newsId': jsonObj['newsId'],
+                'topic': jsonObj['topic'],
+                'time': jsonObj['date'],
+                'source': jsonObj['source'],
+                'detail': jsonObj['content'],
+                'menu': false,
+                'review': false
+              }
+          this.latestNews.push(data)           
+        }
+      },
+      methods: {
+        load: function() { // 向后端获取新的新闻
+          if(this.loading == true) return  //加载中点击加载按钮无效
+          if(this.more == false) return
+          sessionStorage.setItem('numLatest', ''+this.numLatest)
+          url = 'http://localhost:82/2/data/' + this.numLatest
+          this.text = '加载中......'
+          this.loading = true
+          fetch(url)
+            .then(response => response.json())
+            .then(jsonObj => {
+              if(jsonObj.length == 0){
+                this.more = false
+                this.loading = false
+                this.text = '没有更多推荐的新闻了'
+                return
+              }
+              sessionStorage.setItem('keyLatest'+this.numLatest, JSON.stringify(jsonObj))
+              let data = {
+                'newsId': jsonObj['newsId'],
+                'topic': jsonObj['topic'],
+                'time': jsonObj['date'],
+                'source': jsonObj['source'],
+                'detail': jsonObj['content'],
+                'menu': false,
+                'review': false
+              }
+              this.latestNews.push(data)
+              this.text = '加载更多'
+              this.loading = false
+              this.numLatest = this.numLatest + 1 //准备下一篇
+            })
+            .catch(e => {
+              this.loading = false
+              this.text = '加载失败，请重试'
+              console.log("error"+e)
+            })
+        },
+        scroll() {
+          let isLoading = false
+          window.onscroll = () => {
+            // 距离底部200px时加载一次
+            let bottomOfWindow = document.documentElement.offsetHeight - document.documentElement.scrollTop - window.innerHeight
+            if (bottomOfWindow <= 200 && isLoading == false) {
+              isLoading = true
+              this.load()
+              setTimeout(function(){ isLoading = false }, 1000)
+            }
+          }
+        },
+        notLike(id){
+          let len = this.latestNews.length
+          let k = -1
+          for(i = 0; i < len; i++){
+            if(this.latestNews[i]['newsId'] == id){
+              k = i
+            }
+          }
+          if(k != -1){
+            this.latestNews.splice(k, 1)
+          }
+        }
+      },
+      mounted() {
+        this.scroll()
+      }
+    })
+</script>
+<script>
+var vm4 = new Vue({
+        el: '#content2',
+        data: {
+          numGuanzhu: 1, //加载推荐给用户的第几个新闻
+          more: true,
+          text: '加载更多',
+          loading: false,    //是否加载中
+          guanzhuNews: [
+          //{
+          // 'newsId': 1,
+          // 'topic':'新闻标题3',
+          // 'time':'2019-04-01 12:10:30',
+          // 'source':'青年报',
+          // 'detail':'原来游戏里面走位是真的 夕阳 · 小朋友· 狗狗 当你的Gopro被狗狗叼走时…..好一场生死时速 哈哈哈哈哈哈哈哈 爱豆组合的主打曲如果变成80年代的曲风会是什么样的效果？ 《权力的游戏》新推出的栏目“Gam...'
+          //}
+          ],
+        },
+        created() {
+          temp = sessionStorage.getItem('numGuanzhu')
+          this.numGuanzhu = (temp == null ? 1 : parseInt(temp))
+          this.more = true
+          for(i = 1; i <= this.numGuanzhu; i++){
+            obj = sessionStorage.getItem("keyGuanzhu"+i)
+            jsonObj = JSON.parse(obj)
+            //console.log(jsonObj)
+            if(jsonObj == null){
+              return
+            }
+            let data = {
+                  'newsId': jsonObj['newsId'],
+                  'topic': jsonObj['topic'],
+                  'time': jsonObj['date'],
+                  'source': jsonObj['source'],
+                  'detail': jsonObj['content'],
+                  'menu': false,
+                  'review': false
+                }
+            this.guanzhuNews.push(data)            
+          }
+        },
+        methods: {
+          load: function() { // 向后端获取新的新闻
+            if(this.loading == true) return  //加载中点击加载按钮无效
+            if(this.more == false) return
+            sessionStorage.setItem('numGuanzhu', ''+this.numGuanzhu)
+            url = 'http://localhost:82/3/data/' + this.numGuanzhu
+            this.text = '加载中......'
+            this.loading = true
+            fetch(url)
+              .then(response => response.json())
+              .then(jsonObj => {
+                if(jsonObj.length == 0){
+                  this.more = false
+                  this.loading = false
+                  this.text = '没有更多新闻了'
+                  return
+                }
+                sessionStorage.setItem('keyGuanzhu'+this.numGuanzhu, JSON.stringify(jsonObj))
+                let data = {
+                  'newsId': jsonObj['newsId'],
+                  'topic': jsonObj['topic'],
+                  'time': jsonObj['date'],
+                  'source': jsonObj['source'],
+                  'detail': jsonObj['content'],
+                  'menu': false,
+                  'review': false
+                }
+                this.guanzhuNews.push(data)
+                this.text = '加载更多'
+                this.loading = false
+                this.numGuanzhu = this.numGuanzhu + 1 //准备下一篇
+              })
+              .catch(e => {
+                this.loading = false
+                this.text = '加载失败，请重试'
+                console.log("error", e)
+              })
+          },
+          scroll() {
+            let isLoading = false
+            window.onscroll = () => {
+              // 距离底部200px时加载一次
+              let bottomOfWindow = document.documentElement.offsetHeight - document.documentElement.scrollTop - window.innerHeight
+              if (bottomOfWindow <= 200 && isLoading == false) {
+                isLoading = true
+                console.log('快到底部了')
+                this.load()
+                setTimeout(function(){ isLoading = false }, 1000)
+              }
+            }
+          },
+          notLike(id){
+            let len = this.guanzhuNews.length
+            let k = -1
+            for(i = 0; i < len; i++){
+              if(this.guanzhuNews[i]['newsId'] == id){
+                k = i
+              }
+            }
+            if(k != -1){
+              this.guanzhuNews.splice(k, 1)
+            }
+          }
+        },
+        mounted() {
+          this.scroll()
+        }
+      })
+</script>
+<script src="/static/js/index.js"></script>
+</html>

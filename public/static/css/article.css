@@ -1,0 +1,111 @@
+/* 新闻首页每个新闻的样式  */
+		/* 新闻  header */
+		.article-header{
+			background-color: white;
+			height: 20px;
+			position: relative;
+		}
+		.article-header span.context{
+			height: 10px;
+			width: 10px;
+			border-top: 2px solid black;
+			border-left: 2px solid black;
+			transform: rotate(-135deg);
+			display: block;
+			margin-left: auto;
+			margin-right: 10px;
+		}
+		.article-header span.context:hover{
+			border-color: orange;
+			cursor: pointer;
+		}
+		
+		.article-header div.contextmenu{
+			background-color: white;
+			width: 86px;
+			height: 102px;
+			margin-left: auto;
+			margin-right: 10px;
+			font-size: 15px;
+			border: 1px solid whitesmoke;
+		}
+		.article-header div.contextmenu ul{
+			list-style: none;
+			padding-left: 5px;
+		}
+		.article-header div.contextmenu ul li:hover{
+			background-color: yellow;
+		}
+		/* header  end */
+		/* 新闻  footer */
+		.article-footer {
+			display: flex;
+			flex-direction: column;
+		}
+		.article-footer-tab {
+			background-color: white;
+			display: flex;
+			flex-direction: row;
+			justify-content: space-around;
+			border-top: 1px solid silver;
+			padding: 5px 0;
+			width: 100%;
+		}
+		.article-review{
+			background-color: #f2f2f5;
+
+		}
+		.article-footer-tab span{
+			text-align: center;
+			padding-top: 5px;
+			padding-bottom: 5px;
+			width: 25%;
+			font-size: 10px;
+			border-right: 1px solid silver;
+		}
+		.article-footer-tab span:hover{
+			color: orange;
+		}
+		.article-footer-tab span:last-child{
+			border: transparent;
+		}
+		.article-footer input{
+			width: 70%;
+		}
+		.article-footer input:focus{
+			border: 2px solid orange;
+			outline: none;
+		}
+		/* footer end */
+		/* 新闻 body */
+		.article{
+			padding: 10px 20px;
+            display: flex;
+            flex-direction: column;
+			align-items: flex-start;
+			background-color: white;
+		}
+		.topic{
+			font-size: 20px;
+			font-weight: bold;
+		}
+		.topic:hover{
+			color: orange;
+		}
+		.time{
+			font-size: 20px;
+			padding: 10px;
+		}
+		.source{
+			font-size: 20px;
+			padding: 10px;
+		}
+		.detail{
+			font-size: 10px;
+			font-family: Arial, Helvetica, sans-serif;
+		}
+		a{
+			text-decoration: none;
+			color: red;
+		}
+		/* body end */

@@ -1,0 +1,436 @@
+<html>
+<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>登录页</title>
+</head>
+<style>
+body{
+    margin: 0;
+    padding: 0;
+    background-image: url('/static/image/body_repeat.png')
+}
+.container {
+	max-width:400px;
+	width:100%;
+	margin:200px auto 0 auto;
+	position:relative;
+}
+
+#contact {
+	background:#F9F9F9;
+	padding:25px;
+	margin:5px 0;
+}
+
+#contact h3 {
+	color: #F96;
+	display: block;
+	font-size: 30px;
+	font-weight: 400;
+}
+
+fieldset {
+	border: medium none !important;
+	margin: 0 0 10px;
+	min-width: 100%;
+	padding: 0;
+	width: 100%;
+}
+
+#contact input{
+	width:100%;
+	border:3px solid #CCC;
+	background:#FFF;
+	margin:0 0 5px;
+	padding:10px;
+}
+
+#contact button[name="submit"] {
+	cursor:pointer;
+	width:100%;
+	border:none;
+	background:#0CF;
+	color:#FFF;
+	margin:0 0 5px;
+	padding:10px;
+	font-size:15px;
+}
+
+#contact button[name="submit"]:hover {
+	background:#09C;
+	-webkit-transition:background 0.3s ease-in-out;
+	-o-transition:background 0.3s ease-in-out;
+	-moz-transition:background 0.3s ease-in-out;
+	-ms-transition:background 0.3s ease-in-out;
+	transition:background-color 0.3s ease-in-out;
+}
+
+#contact button[name="submit"]:active { 
+    box-shadow:inset 0 1px 3px rgba(0, 0, 0, 0.5); 
+}
+
+#contact input:focus {
+	outline:0;
+	border:3px solid lightskyblue;
+	box-shadow: -2px -2px 2px lightblue, 2px 2px 2px lightblue;
+} 
+.Msg{
+	display: none;
+}
+.Msg.error{
+	display: block;
+	font-size: 10px;
+	color: red;
+}
+
+.btn{
+	cursor:pointer;
+	width:100%;
+	border:none;
+	background:#0CF;
+	color:#FFF;
+	margin:0 2px;
+	padding:2px;
+	font-size:10px;
+}
+.head{
+	width: 100%;
+	padding: 2px 0;
+	margin: 2px auto;
+	display: flex;
+}
+.head span{
+	width: 33%;
+	height: 25px;
+	text-align: center;
+	font-size: 20px;
+	padding-bottom: 2px;
+}
+.head span:hover{
+	cursor: pointer;
+}
+.head .active{
+	color: orange;
+	border-bottom: 2px solid orange;
+}
+
+.btn:disabled{
+	background-color: gray;
+	cursor: not-allowed;
+}
+
+#validCode{
+	width:25%; height: 32px; background-color: gray; color: black; display: inline-block; text-align: center;
+}
+#validCode:hover{
+	cursor: pointer;
+}
+</style>
+<body>
+        <div class="container">  
+            <form id="contact">
+									<div style="font-size:30px;text-align:center;">登录</div>
+									<div class="head">
+										<span :class="visible[0] ? 'active': ''" @click="change(0)">普通登录</span>
+										<span :class="visible[1] ? 'active': ''" @click="change(1)">短信登录</span>
+										<span :class="visible[2] ? 'active': ''" @click="change(2)">邮箱登录</span>
+									</div>
+                  <fieldset v-show="visible[0]">
+                    <input v-model="loginForm.username" placeholder="用户昵称" type="text" id="username" required autofocus>
+                  </fieldset>
+                  <fieldset v-show="visible[0]">
+                    <input v-model="loginForm.password" placeholder="密码" type="password" id="password" required>
+									</fieldset>
+									<fieldset v-show="visible[0]">
+                    <input v-model="loginForm.validCode" placeholder="验证码" type="text" required style="width:50%">
+										<div id="validCode" @click="createCode">{{validCode}}</div>
+									</fieldset>
+									<fieldset v-show="visible[0]">
+                    <button name="submit" type="button" @click="login1()">确认</button>
+                  </fieldset>
+                  <fieldset v-show="visible[1]">
+                    <input v-model="loginForm.phone" placeholder="手机号码" type="text" id="phone" required autofocus>
+                  </fieldset>
+                  <fieldset v-show="visible[1]">
+                    <input v-model="loginForm.validCode" placeholder="验证码" type="text" style="width:70%">
+										<button class="btn" @click="getValidCode" :disabled="loginForm.disabled" style="width:27%;height:7%;">{{loginForm.btnText}}</button>
+									</fieldset>
+									<fieldset v-show="visible[1]">
+                    <button name="submit" type="button" @click="login2()">确认</button>
+                  </fieldset>
+                  <fieldset v-show="visible[2]">
+                    <input v-model="loginForm.email" placeholder="邮箱号码" type="email" id="email" required autofocus>
+                  </fieldset>
+                  <fieldset v-show="visible[2]">
+                    <input v-model="loginForm.epassword" placeholder="邮箱密码" type="password" id="epassword" required>
+                  </fieldset>
+                  <fieldset v-show="visible[2]">
+                    <button name="submit" type="button" @click="login3()">确认</button>
+                  </fieldset>
+                  <fieldset>
+                    <span class="Msg" :class="error.samePassword ? 'error': ''">两次密码输入不相同</span>
+										<span class="Msg" :class="error.loginFail ? 'error': ''">用户名或密码错误</span>
+										<span class="Msg" :class="error.isNull ? 'error': ''">不能留空</span>
+										<span class="Msg" :class="error.phone ? 'error': ''">手机号码格式错误</span>
+										<span class="Msg" :class="error.email ? 'error': ''">错误的邮箱格式</span>
+										<span class="Msg" :class="error.lock ? 'error': ''">帐号被锁</span>
+									</fieldset>
+									 <div>
+											<!-- <a href="javascript:void(0)" @click="reg">去注册</a> -->
+											<a href="/user/reg" >去注册</a>
+									</div>
+						</form>      
+        </div>
+
+</body>
+<script src="/static/js/vue-2.5.21.min.js"></script>
+<script src="/static/js/md5.js"></script>
+<script>
+	var vm = new Vue({
+		el: '#contact',
+		data: {
+				loginForm: {
+					username: '',
+					password: '',
+					phone: '',
+					validCode: '',
+					btnText: '获取验证码',
+					disabled: false,
+					email: '',
+					epassword: ''
+				},
+				validCode: '点击我',
+				error: {
+					isNull: false,  //不能留空
+					len: false,  //长度不能少于6
+          loginFail: false,   //登录失败
+					phone: false,  //手机号格式错误
+					email: false,  //邮件格式错误
+					validCode: false, //验证码错误
+					lock: false  //帐号被锁
+				},
+				visible:{
+					0: true, 1: false, 2: false 
+				} //默认普通登陆页可见
+		},
+		methods: {
+			reg(){
+				window.location.href = 'http://localhost:82/user/reg'
+			},
+			initial(){
+			  this.error.isNull = false
+			  this.error.len = false
+			  this.error.phone = false
+				this.error.loginFail = false
+				this.error.email = false
+				this.error.validCode = false
+				this.error.lock = false
+			},
+			validateUsername(username) {
+			  username = username.replace(/(^\s*)|(\s*$)/g, "") //去掉左右空格
+			  if(username.length == 0) {
+					console.log('username is invalid')
+					this.error.isNull = true
+					return false
+			  } else {
+					console.log('username is ok')
+					return true
+			  }
+			},
+			validatePass1(password){
+				if (password == '') {
+			  	console.log('请输入确认密码');
+			  	this.error.isNull = true
+			  	return false
+			  }
+				if (password.length < 6) {
+			  	console.log('密码不得少于6位')
+			  	this.error.len = true
+			  	return false
+				}
+				console.log('password is ok')
+				return true
+		  },
+			validatePhone(mobile){
+				if(!(/^1[3|4|5|7|8]\d{9}$/.test(mobile))) {
+					this.error.phone = true
+					return false
+				}
+				return true
+			},
+			validateEmail(email){
+				reg = /^([a-zA-Z]|[0-9])(\w|\_)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/
+				if( !reg.test(email)) {
+					this.error.email = true
+					return false
+				}
+				return true
+			},
+		  //普通登录
+			login1(){
+				this.initial()
+				let u = this.loginForm.username
+				let p = this.loginForm.password
+				let c = this.loginForm.validCode
+				if(c != this.validCode){
+					this.error.validCode = true
+					this.createCode()
+					return false
+				}
+			  if(this.validateUsername(u) && this.validatePass1(p)) {
+					console.log('submit!')
+					this.onloginSubmit(u, p)
+					return true
+			  } else {
+					console.log('error submit!!')
+					return false
+			  }
+			},
+			//手机登录
+		  login2(){
+				this.initial()
+				let u = this.loginForm.phone
+				let p = this.loginForm.validCode
+			  if(this.validatePhone(u)) {
+					console.log('submit!')
+					this.onloginPhoneSubmit(u, p)
+					return true
+			  } else {
+					console.log('error submit!!')
+					return false
+			  }
+			},
+			//邮箱登录
+		  login3(){
+				this.initial()
+				let u = this.loginForm.email
+				let p = this.loginForm.epassword
+			  if(this.validateEmail(u) && this.validatePass1(p)) {
+					console.log('submit!')
+					this.onloginEmailSubmit(u,p)
+					return true
+			  } else {
+					console.log('error submit!!')
+					return false
+			  }
+			},
+			change(tab){
+				this.visible[0] = false
+				this.visible[1] = false
+				this.visible[2] = false
+				this.visible[tab] = true
+			},
+			onloginSubmit(u, p){  //提交登录信息 
+				  var arr = {
+					'username': u,
+					'password': hex_md5(p)
+				  }
+				  var jsonStr = JSON.stringify(arr)
+				  var url = 'http://localhost:82/login_in'
+				  var httpHeader = { 
+						headers: { "Content-Type": "application/json" },
+						method: 'POST', 
+						body: jsonStr
+				  }
+				  fetch(url, httpHeader)
+				  .then(response => response.json())
+					.then(jsonObj => {
+						//console.log(jsonObj)
+						//记录用户的id和帐号名
+						sessionStorage.setItem('userId', jsonObj['userId'])
+						sessionStorage.setItem('username', jsonObj['username'])
+						//跳转到首页
+						window.location.href='http://localhost:82'
+				  })
+				  .catch(e => {
+						this.error.loginFail = true
+						console.log('error: '+e)
+				  })
+		  },
+			onloginPhoneSubmit(u, p){  //提交手机登录信息
+				  var arr = {
+					'username': u,
+					'password': hex_md5(p)
+				  }
+				  var jsonStr = JSON.stringify(arr)
+				  var url = 'http://localhost:82/login_in_phone'
+				  var httpHeader = { 
+						headers: { "Content-Type": "application/json" },
+						method: 'POST', 
+						body: jsonStr
+				  }
+				  fetch(url, httpHeader)
+				  .then(response => response.json())
+					.then(jsonObj => {
+						//console.log(jsonObj)
+						//记录用户的id和帐号名
+						sessionStorage.setItem('userId', jsonObj['userId'])
+						sessionStorage.setItem('username', jsonObj['username'])
+						//跳转到首页
+						window.location.href='http://localhost:82'
+				  })
+				  .catch(e => {
+						this.error.loginFail = true
+						console.log('error: '+e)
+				  })
+		  },
+			onloginEmailSubmit(u, p){  //提交邮箱登录信息 
+				  var arr = {
+					'username': u,
+					'password': hex_md5(p)
+				  }
+				  var jsonStr = JSON.stringify(arr)
+				  var url = 'http://localhost:82/login_in_email'
+				  var httpHeader = { 
+						headers: { "Content-Type": "application/json" },
+						method: 'POST', 
+						body: jsonStr
+				  }
+				  fetch(url, httpHeader)
+				  .then(response => response.json())
+					.then(jsonObj => {
+						//console.log(jsonObj)
+						//记录用户的id和帐号名
+						sessionStorage.setItem('userId', jsonObj['userId'])
+						sessionStorage.setItem('username', jsonObj['username'])
+						//跳转到首页
+						window.location.href='http://localhost:82'
+				  })
+				  .catch(e => {
+						this.error.loginFail = true
+						console.log('error: '+e)
+				  })
+		  },
+			//前端生成验证码
+			createCode(){
+				ch = '12345678990qwertyuiopasdfghjklzxcvbnm'
+				code = ''
+				for(i = 1; i <= 4; i++){
+					code = code + ch[Math.floor(Math.random() * 36)]
+				}
+				this.validCode = code
+			},			
+			//获取短信验证码
+			getValidCode(){
+				if(this.loginForm.phone.length == 0){
+					return
+				}
+				this.loginForm.disabled = true
+				t = 10
+				timer = setInterval(() => {
+					if(t > 0){
+						this.loginForm.btnText = t + '(s)'
+						t = t - 1
+					} else {
+						clearInterval(timer)
+						this.loginForm.btnText = '获取验证码'
+						this.loginForm.disabled = false
+					}
+				}, 1000)
+			}
+		}
+	})
+</script>
+</html>

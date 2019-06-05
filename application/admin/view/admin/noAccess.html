@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>管理员管理-无权限</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/static/css/basic.css" />
+    <link rel="stylesheet" type="text/css" href="/static/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="/static/bootstrap/css/bootstrap/3.3.6/bootstrap.min.css" />
+    <script src="/static/bootstrap/js/jquery/2.0.0/jquery.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap/3.3.6/bootstrap.min.js"></script>
+</head>
+<style>
+.btn-group button{
+    margin: 0 20px;
+}
+</style>
+<body>
+<div id="app">
+    <div class="header">
+        <span>后台管理系统</span>
+        <span style="float: right;">
+            <a href="javascript:void(0)" @click="login_out">退出</a>
+        </span>
+        <span style="float: right;">{{ admin }}</span>
+    </div>
+
+    <div class="leftNav" id="leftNav">
+        <ul class="nav">
+                <li class="first" name="news" onclick="shenzhan(this)">新闻管理</li>
+                <ul>
+                    <li @click="edit">编辑类型</li>
+                    <li @click="newsList">新闻列表</li>
+                    <li @click="comment">评论审核</li>
+                    <li @click="sys">系统公告</li>
+                </ul>
+                <li class="first" name="user" onclick="shenzhan(this)">用户管理</li>
+                <ul>
+                    <li @click="userList">用户列表</li>
+                    <li @click="userAccess">权限设置</li>
+                </ul>
+                <li class="first" name="admin" onclick="shenzhan(this)">管理员管理</li>
+                <ul>
+                    <li @click="adminList">管理员列表</li>
+                    <li @click="adminAccess">权限设置</li>
+                </ul>         
+        </ul>
+    </div>
+
+
+        <div class="main">
+            <div class="content">
+                <h1>暂无权限</h1>
+            </div>
+        </div>
+
+    <div class="footer">
+            <div class="clearfix">
+                <span>广东技术师范大学</span>
+                <span>1509841206@qq.com</span>
+                <span>15计算机科学与技术</span>
+                <span>黎威全</span>
+            </div>
+            <div class="clearfix">
+                <span>Copyright 2015-2019</span>
+                <span>站内搜索</span>
+                <span>投诉举报</span>
+                <span>合作</span>
+            </div>
+            <div class="clearfix">
+                <span>家长信息</span>
+                <span>网络110报警服务</span>
+                <span>中国互联网举报中心</span>
+                <span>互联网违法和不良信息信息中心</span>
+            </div>
+    </div>
+
+</div>
+</body>
+
+<script src="/static/js/vue-2.5.21.min.js"></script>
+<script src="/static/js/nav.js"></script>
+<script>
+    var vm = new Vue({
+        el:'#app',
+        data: {
+            admin: ''
+        },
+        created() {
+            tmp = sessionStorage.getItem('username')
+            if(tmp != null) this.admin = tmp               
+        },
+        methods: {
+            edit(){ window.location.href = 'http://localhost:82/admin/edit' },
+            newsList(){ window.location.href = 'http://localhost:82/admin/newsList' },
+            comment(){ window.location.href = 'http://localhost:82/admin/comment' },
+            sys(){ window.location.href = 'http://localhost:82/admin/sys' },
+            userList(){ window.location.href = 'http://localhost:82/admin/userList' },
+            userAccess(){ window.location.href = 'http://localhost:82/admin/userAccess' },
+            resetPass(){ window.location.href = 'http://localhost:82/admin/resetPass' },
+            adminList(){ window.location.href = 'http://localhost:82/admin/index' },
+            adminAccess(){ window.location.href = 'http://localhost:82/admin/adminAccess' },
+            resetAdminPass(){ window.location.href = 'http://localhost:82/admin/resetAdminPass' },
+            login_out(){
+                sessionStorage.clear()
+                window.location.href = 'http://localhost:82/admin/login_out'
+            }
+        }
+    })
+</script>
+</html>

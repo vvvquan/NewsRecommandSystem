@@ -1,0 +1,348 @@
+<html>
+<head>
+<title>用户个人管理页面</title>
+<style>
+	body{
+        margin: 0;
+	    padding: 0;
+        overflow-y: scroll;
+        background-image: url('/static/image/body_repeat.png');
+    }
+    /* 模态框 */
+    .div-child-container{
+        position: relative;
+        width: 400px;
+        height: 200px;
+        margin: auto;
+        top: 30%;
+        background: #fff;
+        z-index: 250; /*z-index要放在父元素之上 */
+    }
+
+    .div-child{
+        width: 400px;
+        height: 200px;
+        margin: auto;
+        background: #fff;
+        z-index: 300; /*z-index要放在父元素之上 */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .div-child .my-btn button{
+        width: 80px;
+        height: 40px;
+        background:#fd7430;
+        border: none;
+        border-radius: 5px;
+        color: #fff;
+        outline: none;
+    }
+    .div-child .my-btn button:first-child(){
+        margin-right: 20px;
+    }
+    .container{
+		display: flex;
+		flex-direction: column;  
+    }
+    /* 头部 */
+    .header{
+      border-top: 3px solid orange;
+	  background-color:white;
+	  min-height: 48px;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+	}
+	.tab{
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-start;
+	}
+	.tab span{
+		font-size: 20px;
+        font-weight: normal;
+		color: #333333;
+		padding: 10px 20px;
+	}
+    .tab span:hover{
+        cursor: pointer;
+        color: orange;
+    }
+    a{
+        text-decoration: none;
+    }
+    /*  底部 */
+    .footer{
+	  background-color:white;
+	  min-height: 48px;
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      padding: 20px 20px;      
+    }
+    .main{
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+    }
+    /* 左侧导航栏 */
+    .leftNav{
+        background-color: silver;
+        width: 10%;
+        height: 100%;
+    }     
+    .leftNav ul{
+        list-style: none;
+        padding: 10px 0;
+    }
+    .leftNav ul li{
+        margin: 40px auto;
+        text-align: center;
+        font-size: 20px;
+        padding: 10px 0;
+    }
+    .leftNav ul li:hover{
+        cursor: pointer;
+        color: orange;
+    }
+    .leftNav ul li.active{
+        background-color: white;
+    }    
+    /* 主要内容 */
+    .content{
+        height: 100%;
+        width: 90%;
+        padding: 50px;
+    }
+    .form .item{
+        margin-bottom: 20px;
+        display: block;
+    }
+    .form .item .label{
+        font-weight: bold;
+        text-align: right;
+        width: 200px;
+        float: left;
+        line-height: 20px;
+    }
+    .tag-pannel{
+        float: left;
+        width: 400px;
+    }
+    .form .item ul{
+        display: block;
+        list-style: none;
+    }
+    .form .item ul li{
+        float: left;
+    }
+    li:hover{
+        cursor: pointer;
+    }
+    .tag{
+        border: 3px solid black;
+        padding: 8px 9px;
+        margin: 10px 10px 0 0;
+    }
+    .tag.selected{
+        border: 3px solid red;
+    }
+</style>
+</head>
+
+<body>
+<div class="container">
+    <!-- 顶部导航栏 -->
+    <div class = "header">
+        <div class="tab">
+            <span @click="window.location.href='http://localhost:82'">首页</span>
+            <span>{{ username }}，你好</span>
+        </div>
+    </div>
+
+    <div class="main">
+
+        <!-- 左边导航栏 -->
+        <div class="leftNav">
+            <ul>
+                <li class="active"><a herf="#">个人信息</a></li>
+                <li><a herf="javascript:;" @click="jump('safe')">帐号安全</a></li>
+                <li><a herf="javascript:;" @click="jump('publish')">通知订阅</a></li>
+                <li><a herf="javascript:;" @click="jump('bind')">帐号绑定</a></li>
+            </ul>
+        </div>
+        <!-- 左侧导航栏 结束-->
+    
+        <div class="content">
+            <div class="form">
+                <div class="item">
+                    <span class="label">用户名:</span>
+                    <span>{{username}}</span>
+                </div>
+                <div class="item">
+                    <span class="label">修改密码:</span>
+                    <input type="password" id="password" placeholder="输入密码"/>
+                </div>
+                <div class="item">
+                    <span class="label">输入确认密码:</span>
+                    <input type="password" id="repassword" placeholder="输入确认密码"/>
+                </div>
+                <div class="item">
+                    <span class="label">兴趣爱好:</span>
+                    <div class="tag-pannel">
+                            <p>选择你喜欢的类型，以让系统更加准确地为你进行推荐</p>
+                            <ul class="tag-list">
+                                <li class="tag" :class="item.selected?'selected':''" v-for="item in tags" :key="item.id" @click="select(item.id)">
+                                    <span class="text">{{item.name}}</span>
+                                </li>
+                            </ul>
+                    </div>
+                    <div style="clear:both"></div>
+                </div>  
+                <div class="item" style="text-align: center">
+                    <button onclick="save">提交</button>
+                </div>              
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <div style="margin: 0 auto">
+            <div>广东技术师范大学 15计算机科学与技术  黎威全</div>
+            <div>Copyright 2015-2019</div>
+            <div>联系方式 邮箱1509841206@qq.com</div>
+        </div>
+    </div>
+
+
+    <!-- 弹出模态框 -->
+    <div class="div-child-container" id="MsgBox" style="display: none;">
+        <div class="div-child">
+            <div>
+                <b>操作成功</b>
+            </div>
+            <div class="my-btn">
+                <button id="confrim" type = "submit" onclick="confrim()">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script src="/static/js/md5.js"></script>
+<script src="/static/js/vue-2.5.21.min.js"></script>
+<script>
+var vm = new Vue({
+    el: '.container',
+    data: {
+        userId: 0,
+        username: '游客',
+        tags: [
+            { id: 1, name: '时政', selected: false},
+            { id: 2, name: '社会', selected: false},
+            { id: 3, name: '游戏', selected: true},
+            { id: 4, name: '音乐', selected: false},
+            { id: 5, name: '体育', selected: true},
+            { id: 6, name: '科技', selected: false},
+            { id: 7, name: '军事', selected: true},
+            { id: 8, name: '生活', selected: false},
+            { id: 9, name: '名人', selected: true},
+            { id: 10, name: '娱乐', selected: false}
+        ]
+    },
+    created() {
+        tmp = sessionStorage.getItem('userId')
+        if(tmp != null) this.userId = tmp
+        tmp = sessionStorage.getItem('username')
+        if(tmp != null) this.username = tmp
+        // url = 'http://localhost:82/' + userId + '/tag'
+        // fetch(url)
+        // .then(res => res.json())
+        // .then(jsonObj => {
+        //     console.log(jsonObj)
+        //     let tmp = []
+        //     for(x in jsonObj){
+        //      let data = {
+        //            id: jsonObj['id'],
+        //            name: jsonObj['name'],
+        //            selected: jsonObj['selected']
+        //         }
+        //      tmp.push(data)
+        //     }
+        //     this.tags = tmp
+        // })
+        // .catch(e => console.log(e))
+    },
+    methods: {
+        jump(tab) {
+            window.location.href = 'http://localhost:82/manage/'+ tab
+        },
+        select(id) {
+            for(i = 0; i < this.tags.length; i++){
+                if(this.tags[i].id == id){
+                    this.tags[i].selected = !this.tags[i].selected
+                    break
+                }
+            }
+        },
+        save(){
+            //首先首先要检查帐号密码是否和格式要求
+            return true
+        }
+    }
+})
+</script>
+<script>
+    /*按钮弹出模态框*/
+    function pop_box(){
+        var container = document.getElementById('MsgBox');
+        container.style.display = "block";
+    }
+    /*确认事件，因为现在没有确认事件，就将弹出框隐藏*/
+    function confrim(){
+        var container = document.getElementById('MsgBox');
+        container.style.display = "none";
+    }
+</script>
+<script>
+    function check(){
+        var password = document.getElementsById('password').value
+        var repassword = document.getElementsById('repassword').value
+        if(password.length == 0 || repassword.length == 0){
+            alert('密码不能留空')
+            return false
+        }
+        if(password.length != repassword.length){
+            alert('两次输入的密码不一样')
+            return false
+        }
+        submit(password)
+        return true
+    }
+    function submit(password){
+        var arr = {
+			'password': hex_md5(password)
+		}
+		var jsonStr = JSON.stringify(arr)
+        url = 'http://localhost:82/user/modifyPassword/'
+        var httpHeader = { 
+			headers: { "Content-Type": "application/json" },
+			method: 'POST', 
+			body: jsonStr
+		}
+        fetch(url, httpHeader)
+        .then(response => response.json())
+        .then(jsonObj => {
+            console.log('修改成功')
+            pop_box()
+        })
+        .catch(e=>console.log(e))
+    }
+</script>
+</html>

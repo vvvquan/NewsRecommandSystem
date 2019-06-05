@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>阅读历史记录</title>
+  <link rel="stylesheet" type="text/css" href="/static/css/me/history.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/index/index.css">
+	<style type="text/css">
+	body{
+      margin: 0;
+			padding: 0;
+      overflow-y: scroll;
+      background-image: url('/static/image/body_repeat.png');
+    }
+	.header{
+      border-top: 3px solid orange;
+			background-color:white;
+			min-height: 48px;
+      width: 100%;
+			display: flex;
+      -webkit-flex-direction: row;
+      -moz-flex-direction: row;
+      -o-flex-direction: row;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+			position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+	}
+	.tab{
+	display: flex;
+      -webkit-flex-direction: row;
+      -moz-flex-direction: row;
+      -o-flex-direction: row;
+		flex-direction: row;
+      -webkit-justify-content: center;
+      -moz-justify-content: center;
+      -o-justify-content: center;
+			justify-content: center;
+		}
+	.tab span{
+		font-size: 20px;
+      font-weight: normal;
+		color: #333333;
+		padding: 10px 20px;
+	}
+	.tab span.active{
+		background-color: orange;
+      color: white;
+		}
+	.content{
+      position: relative;
+      top: 48px;
+      left: 0;
+		padding: 60px 0;
+		width: 40%;
+      height: 900px;
+		display: flex;
+      -webkit-flex-direction: column;
+      -moz-flex-direction: column;
+      -ms-flex-direction: column;
+      -o-flex-direction: column;
+      flex-direction: column;
+      margin: 0 auto;
+	}
+	.content.active{
+		display: block;
+	}	
+    .popmenu{
+      padding: 0 10px;
+    }
+    .popmenu:hover + div.menu{
+      display: block;
+    }
+    .menu{
+      position: absolute;
+      top: 20px;
+      display: none;
+    }
+    .menu:hover{
+      display: block;
+    }
+		.menu span{
+      background-color: white;
+      color: silver;
+      display: block;
+      width: 90px;
+      font-size: small;
+      padding: 5px 0;
+      text-align: center;
+      border-bottom: 1px solid silver;
+		}
+    .menu span:hover{
+      color: orange;
+    }
+		.dialog{
+			position: fixed;
+      top: 40px;
+      padding: 40px 10px;
+      background-color: whitesmoke;
+		}
+		.bottom{
+			text-align: center;
+      padding: 10px 0;
+      height: 30px;
+      background-color: white;
+		}
+  </style>
+
+  <style type="text/css">
+    #box{
+        width: 80px;
+        height: 40px;
+        background: #fd7430;
+        border:none;
+        border-radius: 5px;
+        outline: none;
+        color: #fff;
+    }
+
+    .div-container{
+        position: fixed;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index:200;
+        background: rgba(0,0,0,0.5) !important;/* 兼容ie几不知道，好像ie5 */
+        background:#000;
+        filter: Alpha(opacity=60);
+    }
+    /*设置div-child的父元素主要是将要此元素的父元素透明特性继承过来，故div-child不会半透明，而是不透明，解决了父元素透明，子元素也透明的bug */
+    .div-child-container{
+        position: relative;
+        width: 400px;
+        height: 200px;
+        margin: auto;
+        top: 30%;
+        background: #fff;
+        z-index: 250; /*z-index要放在父元素之上 */
+    }
+
+    .div-child{
+        width: 400px;
+        height: 200px;
+        margin: auto;
+        background: #fff;
+        z-index: 300; /*z-index要放在父元素之上 */
+        display: flex;
+        -webkit-flex-direction: column;
+        -moz-flex-direction: column;
+        -ms-flex-direction: column;
+        -o-flex-direction: column;
+        flex-direction: column;
+        justify-content: space-around;
+        -webkit-align-items: center;
+        -moz-align-items: center;
+        -ms-align-items: center;
+        -o-align-items: center;
+        align-items: center;
+    }
+
+    .div-child .my-btn button{
+        width: 80px;
+        height: 40px;
+        background:#fd7430;
+        border: none;
+        border-radius: 5px;
+        color: #fff;
+        outline: none;
+    }
+
+    .div-child .my-btn button:first-child(){
+        margin-right: 20px;
+    }
+</style>
+<style>
+.leftNav{
+  position: fixed;
+  left: 15%;
+  top: 50px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.leftNav ul{
+  margin: 15px auto;
+  padding: 0 5px;
+}
+.leftNav ul li{
+  list-style: none;
+}
+.leftNav ul:after{
+  border-bottom: 2px solid black;
+}
+.leftNav ul li:hover{
+  background-color: lightblue;
+}
+.leftNav ul li.active{
+  background-color: lightblue;
+}
+.leftNav ul li a{
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  padding: 0 65px 0 15px;
+  height: 34px;
+  line-height: 34px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.news-container{
+  padding: 10px;
+}
+
+.search-menu{
+  background-color: white;
+}
+.search-menu ul{
+  list-style: none;
+  padding-left: 10px;
+}
+.search-menu ul li{
+  background-color: lightblue;
+  color: orange;
+}
+input[id="search-menu"]:focus + div.search-menu{
+  display: block;
+}
+</style>
+<!-- 用户信息模块样式 -->
+<style>
+  .module{ 
+    width: 260px; 
+    height: 500px; 
+    position: fixed;  
+    top: 80px;
+  }
+
+  @media screen and (max-width: 900px) {
+    .content{
+      width: 60%;
+      left: 5%;
+    }
+    .leftNav{
+      left: 5%;
+    }
+  }
+</style>
+</head>
+
+<body>      
+	<div class="header">
+      <div class="tab">
+          <span onclick="window.location.href='http://localhost:82'">首页</span>
+          <span v-if="userId == 0" class="btn" @click="login()">登录</span>
+				  <span v-if="userId == 0" class="btn" @click="reg()">注册</span>
+				  <span v-if="userId > 0">
+            <div class="popmenu">{{username}}，你好</div>
+            <div class="menu">
+              <span @click="manage">修改个人资料</span>
+              <span @click="stat">阅读数据统计</span>
+              <span @click="exit">退出</span>
+            </div>
+          </span>
+      </div>
+      <!-- <div style="padding: 0 20px">
+        <input name="search" class="search" /><button>搜索</button>
+      </div> -->
+		</div>
+    <!-- 头部结束-->
+
+    <!-- 左侧导航栏 -->
+    <div class="leftNav">
+      <ul>
+        <li><a herf="http://localhost:82/me/collect">我的收藏</a></li>
+        <li><a herf="http://localhost:82/me/good">我的赞</a></li>
+        <li class="active"><a herf="http://localhost:82/me/history">阅读记录</a></li>
+      </ul>
+      <ul>
+        <li><a herf="http://localhost:82/hot/news">热门新闻</a></li>
+        <li><a herf="http://localhost:82/hot/search">热门搜索</a></li>
+        <li><a herf="http://localhost:82/hot/guanzhu">热门关注</a></li>
+      </ul>
+      <ul>
+          <li><a herf="http://localhost:82/friend">好友圈</a></li>
+          <li><a herf="http://localhost:82/user/message">个人通知</a></li>
+      </ul>
+      <ul>
+          <li><a herf="http://localhost:82/sys/message">系统消息</a></li>
+          <li><a herf="http://localhost:82/dailyTask">每日任务</a></li>
+      </ul>
+    </div>
+    <!-- 左侧导航栏 结束-->
+
+    <!-- 阅读历史  -->
+	  <div id="content0" class="content">
+        <!-- 列表 -->
+		    <div>
+              <div class="news-container" v-for="item in news" :key="item.newsId">
+              <div class="history">
+                <div class="topic">
+                  <a :href="['/detail/'+item.newsId]">{{ item.topic }}</a>
+                </div>
+                <div class="time">{{item.time}}</div>
+              </div>
+        </div>
+        <!-- 分页 -->
+        <div class="pager">
+          <ul>
+            <li v-for="i in 5" @click="load(i, 10)">{{ i }}</li>
+          </ul>
+        </div>
+    </div>
+
+</body>
+<script src="/static/js/vue-2.5.21.min.js"></script>
+<script src="/static/js/md5.js"></script>
+<script>
+var vm = new Vue({
+	el: '.header',
+	data: {
+		userId: 0,
+    username: '游客'
+	},
+	created(){
+        temp = sessionStorage.getItem('userId')
+        this.userId = (temp == null ? 0 : parseInt(temp))
+        temp = sessionStorage.getItem('username')
+        this.username = (temp == null ? '游客' : temp)
+    },
+	methods: {
+	  login(){
+      window.location.href = 'http://localhost:82/user/login'
+	},
+    reg(){
+      window.location.href = 'http://localhost:82/user/reg'
+    },
+    stat(){
+      window.location.href = "http://localhost:82/stat/data"
+    },
+    manage(){
+      window.location.href = 'http://localhost:82/manage/info'
+    },
+    exit(){  //退出帐号
+	    this.userId = 0
+      var url = 'http://localhost:82/login_out'
+      fetch(url)
+      .then(response => {
+        sessionStorage.clear()
+        window.location.href = "http://localhost:82/user/login"
+      })
+      .catch(e => console.log("error: "+e))
+    }
+
+  }
+})
+</script>
+<script>
+var vm2 = new Vue({
+      el: '#content0',
+      data: {
+        userId: 0,
+        more: true,
+        text: '加载更多',
+        loading: false,    //是否加载中
+        news: {},
+        pageTotal: 1
+      },
+      created() {
+        tmp = sessionStorage.getItem('userId')
+        if(tmp != null) this.userId = tmp
+        this.more = true
+        //加载第一页
+        url = 'http://localhost:82/history/'+ this.userId +'/p/1/pNum/10'
+        this.text = '加载中......'
+        this.loading = true
+        fetch(url)
+        .then(response => response.json())
+        .then(jsonObj => {
+          this.pageTotal = jsonObj['pageTotal']
+          let record = jsonObj['record']
+          let tmp = []
+          for(x in record){
+            let y = record[x]
+            let data = {
+              'newsId': y['id'],
+              'topic': y['topic'],
+              'time': y['time']
+            }
+            tmp.push(data)
+          }
+          this.news = tmp
+        }).catch(e => console.log(e)) 
+        this.text = '加载更多'
+        this.loading = false       
+      },
+      methods: {
+        load: function(pageNum, pageListNum) {
+          if(this.loading == true) return  //加载中点击加载按钮无效
+          url = 'http://localhost:82/history/'+ this.userId +'/p/' + pageNum + '/pNum/' + pageListNum
+          this.text = '加载中......'
+          this.loading = true
+          fetch(url)
+            .then(response => response.json())
+            .then(jsonObj => {
+              this.pageTotal = jsonObj['pageTotal']
+              let record = jsonObj['record']
+              let tmp = []
+              for(x in record){
+                y = record[x]
+                let data = {
+                  'newsId': y['id'],
+                  'topic': y['topic'],
+                  'time': y['time']
+                }
+                tmp.push(data)
+              }
+              this.news = tmp
+              this.text = '加载更多'
+              this.loading = false
+            })
+            .catch(e => {
+              this.text = '加载失败，请重试'
+              //console.log("error", e)
+            })
+          this.loading = false
+        }
+      }
+    })
+</script>
+<script src="/static/js/index.js"></script>
+</html>

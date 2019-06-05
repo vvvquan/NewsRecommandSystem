@@ -1,0 +1,78 @@
+.recFlow{
+      background-color: white;
+      width: 600px;
+}
+.banner{
+      position: relative;
+      width: 600px;
+      overflow: hidden;
+}
+.user_scroll{
+      height: 188px;
+      width: 800px;
+}
+.user_scroll ul{
+      list-style: none;
+      position: absolute;
+      padding-left: 0;
+      top: 0;
+      left: 0;
+      width: 2880px;
+}
+.user_scroll ul::after{
+      clear: both;
+}
+.user_scroll ul li{
+      position: relative;
+      float: left;
+      width: 130px;
+      height: 155px;
+      margin: 0 10px;
+}
+.user_rec{
+      width: auto;
+      height: 150px;
+      background-color: white;
+      padding: 2px 20px;
+      text-align: center;
+      box-shadow: 2px 2px 1px black, -1px -1px 1px silver;
+}
+.user_rec img{
+      margin-top: 3px;
+}
+.user_rec button{
+      background-color: orange;
+      color: white;
+      outline: none;
+}
+.control_l{
+    position: absolute;
+    transform: translate(0, -50%);
+    top: 50%;
+    left: 10px;
+}
+.control_r{
+    position: absolute;
+    transform: translate(0, -50%);
+    top: 50%;
+    right: 10px;
+}
+.WB_icon{
+  display: inline-block;
+  width:40px;
+  height:40px;
+  line-height:40px;
+  background: url('/static/image/icon.png') no-repeat;
+}
+/* 向左按钮 */
+.left{
+  background-position: -250px -200px;
+}
+/* 向右按钮 */
+.right{
+  background-position:-300px -200px;
+}
+/* 右上角自定义背景三角 */
+.upRightBg{
+  background-position:-150px -200px;
+}

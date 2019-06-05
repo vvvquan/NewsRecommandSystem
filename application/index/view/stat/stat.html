@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>用户个人数据统计</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/tag.css">
+    <link rel="stylesheet" type="text/css" href="/static/bootstrap/css/bootstrap/3.3.6/bootstrap.min.css" />
+    <script src="/static/bootstrap/js/jquery/2.0.0/jquery.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap/3.3.6/bootstrap.min.js"></script>
+    <style>
+    body{
+        margin: 0;
+        padding: 0;
+        /* background-image: url('/static/image/body_repeat.png') */
+    }
+    .tag-pannel{
+        margin: 10px 10px 10px 10px;
+    }
+    .single-tag{
+        margin: 10px 10px 10px 10px;
+        padding: 6px 17px;
+        background-color: lightgray;
+        border-radius: 10px 10px 10px 10px;
+        position: relative;
+    }
+    .date{
+        font-size: 50px;
+    }
+    .header{
+        border-top: 3px solid orange;
+		background-color:white;
+		min-height: 48px;
+        width: 100%;
+        display: flex;
+        -webkit-flex-direction: row;
+        -moz-flex-direction: row;
+        -o-flex-direction: row;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+	}
+	.tab{
+        display: flex;
+        -webkit-flex-direction: row;
+        -moz-flex-direction: row;
+        -o-flex-direction: row;
+        flex-direction: row;
+        -webkit-justify-content: center;
+        -moz-justify-content: center;
+        -o-justify-content: center;
+        justify-content: center;
+	}
+	.tab span{
+        font-size: 20px;
+        font-weight: normal;
+        color: #333333;
+        padding: 10px 20px;
+    }
+    .popmenu{
+      padding: 0 10px;
+    }
+    .popmenu:hover + div.menu{
+      display: block;
+    }
+    .menu{
+      position: absolute;
+      top: 20px;
+      display: none;
+    }
+    .menu:hover{
+      display: block;
+    }
+		.menu span{
+      background-color: white;
+      color: silver;
+      display: block;
+      width: 90px;
+      font-size: small;
+      padding: 5px 0;
+      text-align: center;
+      border-bottom: 1px solid silver;
+		}
+    .menu span:hover{
+      color: orange;
+    }
+</style>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <div class="tab">
+                <span onclick="window.location.href='http://localhost:82'">首页</span>
+                <span v-if="userId > 0">
+                    <div class="popmenu">{{username}}，你好</div>
+                    <div class="menu">
+                        <span @click="manage">修改个人资料</span>
+                        <span @click="exit">退出</span>
+                    </div>
+                </span>
+            </div>
+        </div>
+        <div class="usetime">
+            你已使用本系统
+            <span class="date" v-if="year > 0"><b>{{ year }}</b>年</span>
+            <span class="date" v-if="month > 0"><b>{{ month }}</b>月</span>
+            <span class="date"><b>{{ day }}</b></span>日
+        </div>
+        <hr/>
+        <div class="tag-pannel">
+            你喜欢的新闻类型
+            <span class="single-tag" v-for="item in newsType" :item="item">
+                {{ item }}
+            </span>
+        </div>
+        <hr/>
+
+        <div style="width: 80%; margin-left: 140px;">
+            <table class="table table-bordered">
+                <tr>
+                    <th colspan="7" style="text-align: center;">过去近一周的阅读新闻情况</th>
+                </tr>
+                <tr>
+                    <td v-for="(read,date) in weekly" :key="read" :item="date">{{date}}</td>
+                </tr>
+                <tr>
+                    <td v-for="(read,date) in weekly" :key="read" :item="date">{{read}}</td>
+                </tr>
+            </table>
+        </div>
+
+        <hr/>
+
+        <span>你经常阅读的新闻关键词</span>
+        <div id="tagbox">
+            <a href="#" class="blue">{{keywords[0]}}</a>
+            <a href="#" class="red">{{keywords[1]}}</a>
+            <a href="#" class="yellow">{{keywords[2]}}</a>
+            <a href="#">{{keywords[3]}}</a>
+            <a href="#" class="blue">{{keywords[4]}}</a>
+            <a href="#" class="red">{{keywords[5]}}</a>
+            <a href="#" class="yellow">{{keywords[6]}}</a> 
+            <a href="#">{{keywords[7]}}</a>
+            <a href="#" class="blue">{{keywords[8]}}</a>
+            <a href="#" class="red">{{keywords[9]}}</a>
+            <a href="#" class="yellow">{{keywords[10]}}</a>
+            <a href="#">{{keywords[11]}}</a>
+            <a href="#" class="blue">{{keywords[12]}}</a>
+            <a href="#" class="yellow">{{keywords[13]}}</a>
+            <a href="#" class="red">{{keywords[14]}}</a>
+            <a href="#">{{keywords[15]}}</a>
+            <a href="#" class="blue">{{keywords[16]}}</a>
+            <a href="#" class="red">{{keywords[17]}}</a>
+            <a href="#" class="yellow">{{keywords[18]}}</a>
+            <a href="#">{{keywords[19]}}</a>
+            <a href="#" class="blue">{{keywords[20]}}</a>
+            <a href="#" class="red">{{keywords[21]}}</a>
+            <a href="#" class="yellow">{{keywords[22]}}</a> 
+            <a href="#">{{keywords[23]}}</a>
+            <a href="#" class="blue">{{keywords[24]}}</a>
+            <a href="#" class="red">{{keywords[25]}}</a>
+            <a href="#" class="yellow">{{keywords[26]}}</a>
+            <a href="#">{{keywords[27]}}</a>
+            <a href="#" class="blue">{{keywords[28]}}</a>
+            <a href="#" class="yellow">{{keywords[29]}}</a>
+            <a href="#" class="red">{{keywords[30]}}</a>
+            <a href="#">{{keywords[31]}}</a>
+            <a href="#" class="blue">{{keywords[32]}}</a>
+            <a href="#" class="red">{{keywords[33]}}</a>
+            <a href="#" class="yellow">{{keywords[34]}}</a>
+            <a href="#">{{keywords[35]}}</a>
+            <a href="#" class="blue">{{keywords[36]}}</a>
+            <a href="#" class="yellow">{{keywords[37]}}</a>
+            <a href="#" class="red">{{keywords[38]}}</a>
+            <a href="#">{{keywords[39]}}</a>
+        </div>
+        
+    </div>
+</body>
+<script src="/static/js/vue-2.5.21.min.js"></script> 
+<script src="/static/js/tag.js"></script>
+<script>
+var vm = new Vue({
+    el: '#app',
+    data: {
+        userId: 0,
+        username: '',
+        newsType: [],   //用户喜欢的新闻类型
+        keywords: [],   //用户经常看的新闻的关键词
+        year: 0,
+        month: 0,
+        day : 0,
+        weekly: []   //过去7天，每天看的新闻数量
+    },
+    created() {
+        tmp = sessionStorage.getItem('userId')
+        if(tmp != null) this.userId = tmp
+        tmp = sessionStorage.getItem('username')
+        if(tmp != null) this.username = tmp
+
+          var url = 'http://localhost:82/stat/basicData'
+          fetch(url)
+          .then(response => response.json())
+          .then(jsonObj => {       
+            this.year = jsonObj['registerTime']['year']
+            this.month = jsonObj['registerTime']['month']
+            this.day = jsonObj['registerTime']['day']        
+            this.newsType = jsonObj['newsType']    
+            this.keywords = jsonObj['keyword']
+            this.weekly = jsonObj['weekly']
+          })
+          .catch(e => console.log("error: "+e))             
+    },
+    methods: {
+        manage(){
+            window.location.href = 'http://localhost:82/manage/info'
+        },
+        exit(){  //退出帐号
+            this.userId = 0
+            var url = 'http://localhost:82/login_out'
+            fetch(url)
+            .then(response => {
+                sessionStorage.clear()
+                window.location.href = "http://localhost:82/user/login"
+            })
+            .catch(e => console.log("error: "+e))
+        },
+    },
+})
+</script>
+</html>

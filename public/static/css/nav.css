@@ -1,0 +1,42 @@
+/* 左边侧边栏菜单 */
+.nav{
+    height: 100px;
+    width: 100%;
+    list-style: none;
+    padding-left: 0;
+}
+.nav li:hover{
+    cursor: pointer;
+    color: orange;
+}
+.nav li{
+    padding: 10px 20px;
+    font-size: large;
+}
+.nav li + ul{
+    display: none;
+}
+.nav li.active + ul{
+    display: block;
+}
+.nav ul{
+    list-style: none;
+    padding-left: 20px;
+}
+.first{
+    box-shadow: 1px 1px 1px gray;
+}
+li.first + ul li{
+    box-shadow: 1px 1px 1px gray;
+}
+li.first.active::before{
+    content: '-';
+}
+li.first::before{
+    content: '+';
+}
+
+li.choose{
+    background-color: white;
+    color: black;
+}

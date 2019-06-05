@@ -1,0 +1,116 @@
+/* 右侧信息栏上方 */
+.userModule{
+    background-color:white; 
+    width: 260px;
+    height: 160px;
+    position: relative;
+    float: right;
+  }
+  .user_face{
+    width: 48px;
+    height: 48px;
+    position: absolute;
+    top: 24%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .count{
+      width: 100%;
+  }
+  .count ul{
+    list-style: none;
+    padding-left: 0;
+  }
+  .count ul li{
+    float: left;
+    border-right: 1px solid silver;
+    margin: 10px 0;
+    width: 33%;
+    text-align: center;
+  }
+  .count ul li:last-child{
+    border: none;
+  }
+
+/* 右侧信息栏下方 */
+ a{
+    text-decoration: none;
+  }
+  .tabModule{
+    width: 258px;
+    height: 310px;
+    background-color: white;
+    box-shadow: 1px 1px 6px black;
+    float: right;
+    position: relative;
+    top: 30px;
+  }
+  .tabModule ul{
+    list-style: none;
+    padding-left: 0;
+    display: inline-block;
+  }
+  .tab{
+    width: 100%;
+    height: 50px;
+  }
+  .tab ul{
+    width: 100%;
+  }
+  .tab ul li{
+    float: left;
+  }
+  
+  .tab-content{
+    width: 100%;
+    margin-left: 10px;
+  }
+  
+  ul#tab-content-recent{
+    width: 100%;
+  }
+  ul#tab-content-hot{
+    width: 100%;
+  }
+  
+  .tab-nav-title{
+    border-bottom: 2px solid #e4e4e4;
+    padding: 2px 0;
+    width: 50%;
+    text-align: center;
+  }
+  .tab-nav-title.active{
+    border-bottom-color: orange;
+  }
+  
+  .tab-item-img{
+    width: 15%;
+    position: relative;
+    float: left;
+    top: 1em;
+  }
+  .tab-item-text{
+    width: 73%;
+    position: relative;
+    float: left;
+  }
+  .tab-item-text p:hover{
+    color: orange;
+    cursor: pointer;
+  }
+
+  .tab-item-thumb{
+    width: 25px;
+    height: 25px;
+  }
+  
+  .tab-item-title{
+    font-size: 12px;
+  }
+  .tab-item-date{
+    font-size: 8px;
+  }
+  .tab-item-category{
+    color: silver;
+    font-size: 8px;
+  }

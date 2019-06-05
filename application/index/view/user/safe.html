@@ -1,0 +1,291 @@
+<html>
+<head>
+<title>用户个人管理页面</title>
+<style>
+	body{
+        margin: 0;
+	    padding: 0;
+        overflow-y: scroll;
+        background-image: url('/static/image/body_repeat.png');
+    }
+    /* 模态框 */
+    .div-child-container{
+        position: relative;
+        width: 400px;
+        height: 200px;
+        margin: auto;
+        top: 30%;
+        background: #fff;
+        z-index: 250; /*z-index要放在父元素之上 */
+    }
+
+    .div-child{
+        width: 400px;
+        height: 200px;
+        margin: auto;
+        background: #fff;
+        z-index: 300; /*z-index要放在父元素之上 */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .div-child .my-btn button{
+        width: 80px;
+        height: 40px;
+        background:#fd7430;
+        border: none;
+        border-radius: 5px;
+        color: #fff;
+        outline: none;
+    }
+    .div-child .my-btn button:first-child(){
+        margin-right: 20px;
+    }
+    .container{
+		display: flex;
+		flex-direction: column;  
+    }
+    /* 头部 */
+    .header{
+      border-top: 3px solid orange;
+	  background-color:white;
+	  min-height: 48px;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+	}
+	.tab{
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-start;
+	}
+	.tab span{
+		font-size: 20px;
+        font-weight: normal;
+		color: #333333;
+		padding: 10px 20px;
+	}
+    .tab span:hover{
+        cursor: pointer;
+        color: orange;
+    }
+    a{
+        text-decoration: none;
+    }
+    /*  底部 */
+    .footer{
+	  background-color:white;
+	  min-height: 48px;
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      padding: 20px 20px;      
+    }
+    .main{
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+    }
+    /* 左侧导航栏 */
+    .leftNav{
+        background-color: silver;
+        width: 10%;
+        height: 100%;
+    }     
+    .leftNav ul{
+        list-style: none;
+        padding: 10px 0;
+    }
+    .leftNav ul li{
+        margin: 40px auto;
+        text-align: center;
+        font-size: 20px;
+        padding: 10px 0;
+    }
+    .leftNav ul li:hover{
+        cursor: pointer;
+        color: orange;
+    }
+    .leftNav ul li.active{
+        background-color: white;
+    }    
+    /* 主要内容 */
+    .content{
+        height: 100%;
+        width: 90%;
+        padding: 50px;
+    }
+    .form{
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    .card{
+        background-color: white;
+        padding: 70px 40px;
+        margin: 10px;
+        box-shadow: 1px 1px 1px silver;
+        font-size: larger;
+    }
+    .card .title{
+        font-size: 20px; text-align: center; margin: 10px 0;
+    }
+    .card .title:hover{
+        color: orange;
+        cursor: pointer;
+    }
+    .card .tip{
+        font-size: 10px; color: silver; text-align: center; margin: 10px 0;
+    }
+    .card .btn{
+        padding: 10px 5px; border: 1px solid black; text-align: center; margin: 10px 0;
+    }
+    .card .btn:hover{
+        color: red;
+        border: 1px solid red;
+        cursor: pointer;        
+    }
+</style>
+</head>
+
+<body>
+<div class="container">
+    <!-- 顶部导航栏 -->
+    <div class = "header">
+        <div class="tab">
+            <span @click="window.location.href='http://localhost:82'">首页</span>
+            <span>{{ username }}，你好</span>
+        </div>
+    </div>
+
+    <div class="main">
+
+        <!-- 左边导航栏 -->
+        <div class="leftNav">
+            <ul>
+                <li><a herf="javascript:;" @click="jump('info')">个人信息</a></li>
+                <li class="active"><a herf="#">帐号安全</a></li>
+                <li><a herf="javascript:;" @click="jump('publish')">通知订阅</a></li>
+                <li><a herf="javascript:;" @click="jump('bind')">帐号绑定</a></li>
+            </ul>
+        </div>
+        <!-- 左侧导航栏 结束-->
+    
+        <div class="content">
+            <div class="form">
+                <div class="card" v-for="item in option">
+                    <div class="title">{{ item.title }}</div>
+                    <div class="tip">{{ item.tip }}</div>
+                    <div class="btn">{{ item.btn }}</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <div style="margin: 0 auto">
+            <div>广东技术师范大学 15计算机科学与技术  黎威全</div>
+            <div>Copyright 2015-2019</div>
+            <div>联系方式 邮箱1509841206@qq.com</div>
+        </div>
+    </div>
+
+
+    <!-- 弹出模态框 -->
+    <div class="div-child-container" id="MsgBox" style="display: none;">
+        <div class="div-child">
+            <div>
+                <b>操作成功</b>
+            </div>
+            <div class="my-btn">
+                <button id="confrim" type = "submit" onclick="confrim()">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script src="/static/js/md5.js"></script>
+<script src="/static/js/vue-2.5.21.min.js"></script>
+<script>
+var vm = new Vue({
+    el: '.container',
+    data: {
+        userId: 0,
+        username: '游客',
+        option: [
+            {title: '密保问题', tip: '开启有助您快速通过安全认证', btn: '启用密保问题'},
+            {title: '帐号申诉', tip: '定期更换密码有助于账号安全', btn: '手机短信密码找回'},
+            {title: '帐号注销', tip: '彻底不再使用帐号', btn: '立即注销帐号'},
+            {title: '帐号冻结', tip: '关闭低频客户端防止账号被盗', btn: '立即锁定'},
+            {title: '数字证书', tip: '为您的账号安全保驾护航', btn: '管理数字证书'}, 
+            {title: '实名认证', tip: '尚未进行认证', btn: '进行实名认证'}, 
+            {title: '授权管理', tip: '绑定、解绑微信、QQ账号', btn: '授权帐号管理'}
+        ]
+    },
+    created() {
+        tmp = sessionStorage.getItem('userId')
+        if(tmp != null) this.userId = tmp
+        tmp = sessionStorage.getItem('username')
+        if(tmp != null) this.username = tmp        
+    },
+    methods: {
+        jump(tab) {
+            window.location.href = 'http://localhost:82/manage/'+ tab
+        }
+    }
+})
+</script>
+<script>
+    /*按钮弹出模态框*/
+    function pop_box(){
+        var container = document.getElementById('MsgBox');
+        container.style.display = "block";
+    }
+    /*确认事件，因为现在没有确认事件，就将弹出框隐藏*/
+    function confrim(){
+        var container = document.getElementById('MsgBox');
+        container.style.display = "none";
+    }
+</script>
+<script>
+    function check(){
+        var password = document.getElementsById('password').value
+        var repassword = document.getElementsById('repassword').value
+        if(password.length == 0 || repassword.length == 0){
+            alert('密码不能留空')
+            return false
+        }
+        if(password.length != repassword.length){
+            alert('两次输入的密码不一样')
+            return false
+        }
+        submit(password)
+        return true
+    }
+    function submit(password){
+        var arr = {
+			'password': hex_md5(password)
+		}
+		var jsonStr = JSON.stringify(arr)
+        url = 'http://localhost:82/user/modifyPassword/'
+        var httpHeader = { 
+			headers: { "Content-Type": "application/json" },
+			method: 'POST', 
+			body: jsonStr
+		}
+        fetch(url, httpHeader)
+        .then(response => response.json())
+        .then(jsonObj => {
+            console.log('修改成功')
+            pop_box()
+        })
+        .catch(e=>console.log(e))
+    }
+</script>
+</html>

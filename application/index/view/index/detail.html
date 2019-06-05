@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8"/>
+    <link rel="stylesheet" href="/static/css/go-to-top.css" type="text/css" />
+    <title>新闻正文页</title>
+    <style>
+    .topic {
+      text-align: center;
+      margin-top: 60px;
+    }
+    .time {
+      margin: 5px 5px 5px 5px;
+    }
+    .source {
+      margin: 5px 5px 5px 5px;
+    }
+    .btn{
+      background-color: red;
+      color: white;
+      padding: 3px 10px;
+      cursor: pointer;
+    }
+    .detail {
+      margin: 5px 5px 5px 5px;
+    }
+    .news-foot{
+      float: right;
+    }
+    .collect{
+      font-size: 15px;
+      margin: 5px;
+    }
+    .good{
+      font-size: 15px;
+      margin: 5px;
+    }
+    a {
+      text-decoration: none;
+    }
+    a:hover{
+      cursor: hand;
+    }
+  
+  body{
+    margin: 0;
+    padding: 0;
+    background-image: url('/static/image/body_repeat.png');
+  }
+  .container{
+    width: 70%;
+    height: 900px;
+    margin: 0 auto;
+  }
+  .header{
+    position: fixed;
+    top: 0;
+    width: 68%;
+    background-color: white;
+    height: 40px;
+    color: black;
+  }
+  .header span{
+    padding: 5px;
+    margin: 5px;
+  }
+  .main{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin-top: 40px;
+  }
+  .news{
+    width: 60%;
+  }
+  .news-foot{
+    background-color: lightblue;
+  }
+  .right{
+    width: 30%;
+  }
+  .box-card{
+    background-color: white;
+    margin: 10px auto;
+  }
+  .box-card .head{
+    border-bottom: 1px solid #f2f2f5;
+    font-weight: 700;
+    padding: 10px;
+  }
+  .box-card .list{
+    padding: 0 9px;
+    letter-spacing: normal;
+    word-spacing: normal;
+    vertical-align: top;
+    font-size: 13px;
+  }
+  .box-card .list p{
+    padding: 4px 2px;
+  }
+
+  .comment-area{
+    display: flex;
+    flex-direction: column;
+  }
+  .comment-box{
+    width: 100%;
+    border: 2px solid #e4e1e1;
+    background-color: #e4e1e1;
+    margin: 30px auto;
+  }
+  .comment-box textarea{
+    width: 100%;
+    height: 60px;
+    padding: 0;
+    border: none;
+    line-height: 22px;
+    font-size: 14px;
+    outline: 0;
+    color: #666;
+    resize:none;
+  }
+  .comment-box button{
+    background: #45B6F7;
+    border: none;
+    padding: 0px;
+    width: 100px;
+    height: 38px;
+    color: #fff;
+    outline: 0;
+    font-size: 16px;
+    float: right;
+  }
+  .single-comment{
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+  }
+  .comment2{
+    padding-left: 50px;
+  }
+  .comment-header{
+    display: flex;
+    flex-direction: row;    
+  }
+  .comment-body{
+    font-size: 20px;
+    color: black;
+    margin: 10px 0;
+    text-indent: 40px;
+  }
+  .comment-footer{
+    height: 20px;
+    text-align: end;
+  }
+  .comment-footer span{
+    font-size: 15px;
+    margin: 2px 5px;
+  }
+  .comment-footer span:hover{
+    color: orange;
+    cursor: pointer;
+  }
+  </style>
+</head>
+<body>
+  <div class="container">
+      <!-- 顶部导航栏 -->
+      <div class = "header">
+        <span><a href = "http://localhost:82">首页</a></span>
+        <span>{{ username }}，你好</span>
+      </div>
+      <!-- 正文和推荐 -->
+      <div class="main">
+        <div class="news">
+          <!-- 正文部分 -->
+          <div id="article">
+            <div class="topic"><h1>{{ topic }}</h1></div>
+            <div class="time">{{ date }}</div>
+            <div class="source">
+              <span>{{ source }}</span>
+              <button @click="guanzhu" class="btn">
+                <span v-if="isGuanzhu">已</span>关注
+              </button>
+            </div>
+            <div class="detail">
+              <p>{{ content }}</p>
+            </div>
+          </div>
+
+          <div class="news-foot">
+              <span class="collect" v-on:click="addCollect()">
+                <a href="javascript:void(0)">
+                  <span v-if="isCollect">已</span>收藏({{ collect }})
+                </a>
+              </span>
+              <span class="good" v-on:click="addGood()">
+                <a href="javascript:void(0)">
+                  <span v-if="isGood">已</span>点赞({{ good }})
+                </a>
+              </span>
+          </div>
+        </div>
+        <!-- 右侧相关推荐 -->
+        <div class="right">
+          <div class="box-card">
+            <div class="head">相关推荐：</div>
+            <div v-for="item in news" :key="item" class="list">
+              <p><a :href="'/detail/' + item.id">{{ item.topic }}</a></p>
+            </div>
+          </div>
+          <!-- <div class="box-card">
+            <div class="head">看了该新闻的人还看了：</div>
+            <div v-for="item in titles" :key="item" class="list">
+              <p><a :href="'/detail/' + item.newsId">{{ item.title }}</a></p>
+            </div>
+            <div class="list">
+              <p>这是一个用于测试的新闻标题来的</p>
+              <p>这是一个用于测试的新闻标题来的</p>
+            </div>
+          </div> -->
+        </div>
+      </div>
+
+      <!-- 右下角按钮组 -->
+      <div id="box1" class="box top" @click="go">
+        <div class="box-in"></div>
+      </div>
+      <!-- <div id="box2" class="box share" @click="go">
+        <div class="box-in"></div>
+      </div> -->
+
+      <!-- 评论区 -->
+      <div class="comment-area">
+        <div class="comment-box">
+          <textarea v-model="textAreaContent" 
+            placeholder="评论人工审核，请勿发表违规、无意义的内容" maxlength="100">
+          </textarea>
+          <div style="background-color: #fbfbfb">
+            <button name="comment" @click="comment">{{submit}}</button>
+          </div>
+        </div>
+        <div style="margin: 10px 0">
+          <h2>评论</h2><hr/>
+        </div>
+        <div v-if="comments.length == 0"><h3>暂无评论</h3></div>
+        <div class="single-comment" v-for="item in comments" :key="item.commentId">
+          <div class="comment-header">
+            <img src="/static/image/face.gif"/>
+            <div style="margin-left: 21px">
+              <div>{{item.username}}</div>
+              <div style="margin-top:8px; font-size:14px; color:sienna">{{item.time}}</div>
+            </div>
+          </div>
+          <div class="comment-body">{{item.content}}</div>
+          <div class="comment-footer">
+            <span @click="delete1(item.commentId)" v-if="item.username == username">删除</span>
+            <span @click="handleComment(item)">回复</span>
+          </div>
+          <div v-if="item.combox" style="margin: 10px 0">
+              <textarea style="width: 100%; resize: none" maxlength="100" v-model="reply"></textarea>
+              <button @click="subComment(item.commentId, item.username, reply)">提交</button>
+          </div>
+          <!-- 二级评论 -->
+          <div class="single-comment comment2" v-if="item.comment2.length > 0" v-for="item2 in item.comment2" :key="item2.comment2Id">
+                <div class="comment-header">
+                  <img src="/static/image/face.gif"/>
+                  <div style="margin-left: 21px">
+                    <div>{{item2.username}}</div>
+                    <div style="margin-top:8px; font-size:14px; color:sienna">{{item2.time}}</div>
+                  </div>
+                </div>
+                <div class="comment-body">{{item2.content}}</div>
+                <div class="comment-footer">
+                  <span @click="delete2(item.commentId,item2.comment2Id)" v-if="item2.username == username">删除</span>
+                  <span @click="handleComment(item2)">回复</span>
+                </div>
+                <div v-if="item2.combox" style="margin: 10px 0">
+                    <textarea style="width:100%; resize:none;" maxlength="100" v-model="reply"></textarea>
+                    <button @click="subComment2(item.commentId,item2.username,reply)">提交</button>
+                </div>
+          </div>
+          <div style="border: 1px dashed black;margin: 5px 0;"></div>
+        </div>
+        <!-- 加载按钮 -->
+        <div style="text-align: center; margin: 10px 0;cursor: pointer;">
+          <span v-if="more" @click="load"><h3>{{loading}}</h3></span>
+        </div>
+      </div>
+
+
+  </div>
+</body>
+<script>
+var second = 0;
+window.setTimeout("interval()", 1000);
+function interval()
+{
+	second++;
+	console.log(second)
+	if(second < 20){  //在正文页停留至少20s才算阅读过这篇文章
+		window.setTimeout("interval();", 1000);
+	} else {
+    let str = window.location.pathname
+    let newsId = str.replace(/[^0-9]/ig,"")
+    url = 'http://localhost:82/read/' + newsId
+		fetch(url)
+		.then(res => console.log('success: '+res.text()) )
+		.catch(e => console.log('error: '+ e))
+	}
+}
+</script>
+<script src="/static/js/vue-2.5.21.min.js"></script>
+<script>
+    var vm = new Vue({
+      el: '.container',
+      data: {
+        //用户
+        userId: 0,
+        username: '游客',
+        //新闻
+        id: 0,  //新闻Id
+        topic: '',
+        date: '',
+        source: '',
+        content: '',
+        collect: 0,
+        good: 0,
+        isCollect: false,
+        isGood: false,
+        isGuanzhu: false,
+        //推荐新闻
+        titles: [],
+        news: [],
+        //评论
+        textAreaContent: '', //评论框里的内容
+        submit: '提交评论',
+        reply: '', //正在回复的内容，包括一级和二级
+        comments: [],
+        // comments: [
+        //   {
+        //     'commentId': 1,
+        //     'username': '游客',
+        //     'time': '2019-4-14 11:33:10',
+        //     'content': '测试样例而已测试样例而已测试样例而已测试样例而已测试样例而已测试样例而已测试样例而已',
+        //     'combox': false,
+        //     'comment2': [
+        //       {
+        //         'comment2Id': 2,
+        //         'username': '游客',
+        //         'time': '2019-5-15 17:13:55',
+        //         'content': '回复1回复1回复1',
+        //         'combox': false
+        //       }
+        //     ]              
+        //   },
+        //   {
+        //     'commentId': 2,
+        //     'username': '游客',
+        //     'time': '2019-4-3 15:13:35',
+        //     'content': '测试样例而已测试样例而已测试样例而已测试样例而已测试样例而已测试样例而已测试样例而已测试样例而已测试样例而已测试样例而已',
+        //     'combox': false,
+        //     'comment2': [
+        //       {
+        //         'comment2Id': 1,
+        //         'username': '游客',
+        //         'time': '2019-4-12 7:13:55',
+        //         'content': '回复2222回复回复2222',
+        //         'combox': false
+        //       },
+        //       {
+        //         'comment2Id': 3,
+        //         'username': '游客',
+        //         'time': '2019-4-12 7:13:55',
+        //         'content': '回复回3333复回复3333',
+        //         'combox': false
+        //       }
+        //     ]
+        //   }
+        // ],
+        more: true,  //是否还有评论可以加载
+        page: 1,     //加载第几页的评论
+        loading: '加载更多'
+        
+      },
+      created: function(){
+        tmp = sessionStorage.getItem('userId')
+        if(tmp != null) this.userId = tmp
+        tmp = sessionStorage.getItem('username')
+        if(tmp != null) this.username = tmp
+        if(this.userId == 0) this.submit = '登录发表评论'
+        let str = window.location.pathname
+        this.id = str.replace(/[^0-9]/ig,"")
+        url = 'http://localhost:82/newsData/' + this.id
+          fetch(url)
+          .then(response => response.json())
+          .then(jsonObj => {
+                //新闻详情
+                detail = jsonObj['arr']             
+                this.topic = detail['topic']
+                this.date = detail['date']
+                this.source = detail['source']
+                this.content = detail['content']
+                this.collect = detail['collect']
+                this.good = detail['good']
+                //推荐新闻
+                this.news = jsonObj['arrNews']
+                //是否已收藏该文章
+                this.isCollect = jsonObj['isCollect']
+                //是否已点赞该文章
+                this.isGood = jsonObj['isGood']
+                //是否已关注该文章的来源
+                this.isGuanzhu = jsonObj['isGuanzhu']
+          })
+          .catch(e => console.log("error: ", e))
+          //获取跟该新闻最相关最新的新闻标题和newsId
+          url = 'http://localhost:82/recommand/' + this.id
+          fetch(url)
+          .then(response => response.json())
+          .then(jsonObj => {
+            this.titles = jsonObj
+          }).catch(e => console.log("error: ", e))
+      },
+      // mounted() {
+      //   this.load()
+      // },
+      methods: {
+        go(){
+          var timer = null
+          cancelAnimationFrame(timer);
+          timer = requestAnimationFrame(function fn(){
+            var oTop = document.body.scrollTop || document.documentElement.scrollTop
+            if(oTop > 50){
+              document.body.scrollTop = document.documentElement.scrollTop = oTop - 50
+              timer = requestAnimationFrame(fn)
+            }else{
+              cancelAnimationFrame(timer)
+            }    
+          })
+        },
+        addCollect(){
+          var userId = this.userId
+          if(userId == 0){
+            alert('此操作需要登录');
+            return
+          }
+          if(this.isCollect == true) return
+          url = "http://localhost:82/addCollect/" + this.id
+          fetch(url)
+          .then(response => response.text())
+          .then(txt => {
+            if(txt == "ok"){
+                this.collect = this.collect + 1
+                this.isCollect = true
+              }
+          })
+          .catch(e=> console.log('add collect error'))
+        },
+        addGood(){
+          var userId = this.userId
+          if(userId == 0){
+            alert('此操作需要登录');
+            return
+          }
+          if(this.isGood == true) return
+          url = "http://localhost:82/addGood/" + this.id
+          fetch(url)
+          .then(response => response.text())
+          .then(txt => {
+            if(txt == "ok"){
+              this.good = this.good + 1
+              this.isGood = true
+            }
+          })
+          .catch(e=> console.log('add good error'))
+        },
+        guanzhu: function(){
+          var userId = this.userId
+          if(userId == 0){
+            alert('此操作需要登录');
+            return
+          }
+          if(this.isGuanzhu == true) return
+          url = "http://localhost:82/guanzhu"
+          let data = {
+            'source': this.source
+          }
+          httpHeader = {
+            headers: { "Content-Type": "application/json" },
+						method: 'POST',
+            body: JSON.stringify(data)
+          }
+          fetch(url, httpHeader)
+          .then(response => {
+              this.isGuanzhu = true
+          })
+          .catch(e => console.log('guanzhu error'))          
+        },
+        //加载一级评论
+        load: function(){
+          if(this.more == false) return
+          url = 'http://localhost:82/comment/' + this.id + '/p/' + this.page
+          this.loading = '加载中...' 
+          fetch(url)
+          .then(res => res.json())
+          .then(data => {
+            //console.log(data)
+            if(data.length > 0){ /////////////////////////////////////////////////////
+              for(i in data){
+                //console.log(data[i])
+                jsonObj = data[i]
+                let obj = {
+                  'commentId': jsonObj['id'],
+                  'username': jsonObj['username'],
+                  'time': jsonObj['time'],
+                  'content': jsonObj['content'],
+                  'combox': false,
+                  'comment2': []
+                } 
+
+                obj['comment2'] = this.load2(jsonObj['id'])
+                this.comments.push(obj)
+              }
+              this.loading = '加载更多'
+              this.page = this.page + 1
+            }
+            if(data.length < 5){
+              this.more = false
+              this.loading = '没有更多评论了'
+            }
+          })
+          .catch(e => {
+            this.loading = '加载失败，请点击重试'
+            console.log(e)
+          })
+        },
+        //加载二级评论
+        load2: function(commentId){ //commentId是一级评论id
+          var result = []
+          url = 'http://localhost:82/comment2/' + commentId
+          fetch(url)
+          .then(res => res.json())
+          .then(data => {
+            //console.log(data)
+            if(data.length == 0) 
+              return result
+            else { /////////////////////////////////////////////////////
+              for(i in data){
+                //console.log(data[i])
+                jsonObj = data[i]
+                let obj = {
+                  'comment2Id': jsonObj['id'],
+                  'username': jsonObj['username'],
+                  'time': jsonObj['time'],
+                  'content': jsonObj['content'],
+                  'combox': false
+                }
+                result.push(obj)
+              }
+            }
+          })
+          //console.log(result)
+          return result
+        },
+        //评论框的显示与隐藏
+        handleComment(item){
+          item.combox = !item.combox
+        },
+        //直接评论
+        comment: function(){
+          if(this.userId == 0) return
+          this.submit = '提交评论中...'
+          url = 'http://localhost:82/comment'
+          let data = {
+            'newsId': this.id,
+            'username': this.username,
+            'content': this.textAreaContent
+          }
+          let httpHeader = {
+            headers: { "Content-Type": "application/json" },
+						method: 'POST',
+            body: JSON.stringify(data)
+          }
+          fetch(url, httpHeader)
+          .then(res => res.text())
+          .then(id => {
+            console.log(id)  //返回直接评论的评论id
+            this.submit = '提交评论' 
+            //把回复内容显示在前端
+            let data2 = {
+              'commentId': id,
+              'username': this.username,
+              'content': this.textAreaContent + "(审核通过后公开)",
+              'time': '10秒前',
+              'combox': false,
+              'comment2': []
+            }
+            this.comments.push(data2)
+          })
+          .catch(e => {
+            this.submit = '提交失败，点击重试'
+            console.log(e)
+          })
+        },
+        //无论是 回复直接评论， 还是回复评论的评论，只要该二级评论是归属于哪个一级评论下就行了
+        subComment(commentId, beRepliedName, reply){
+          if(this.userId == 0){
+            alert('请先登录')
+            return
+          }
+          reply = '回复['+ beRepliedName +']:'+ reply
+          url = 'http://localhost:82/comment2'
+          let data = {
+            'commentId': commentId,   //属于哪个一级评论的下方
+            'username': this.username,
+            'content': reply
+          }
+          let httpHeader = {
+            headers: { "Content-Type": "application/json" },
+						method: 'POST',
+            body: JSON.stringify(data)
+          }
+          fetch(url, httpHeader)
+          .then(res => res.text())
+          .then(id => {
+            //console.log(id)  //返回回复评论的二级评论id 
+            //把回复内容显示在前端
+            let data2 = {
+              'comment2Id': id,
+              'username': this.username,
+              'time': '10秒前',
+              'content': reply + "(后台审核后公开)",
+              'combox': false
+            }
+            for(i=0; i<this.comments.length; i++){
+              if(this.comments[i].commentId == commentId){
+                this.comments[i].comment2.push(data2)
+                return
+              }
+            }
+            //添加后将reply清空，因为是公用的，并把回复框隐藏
+            this.reply = ''
+          })
+          .catch(e => { console.log(e)})
+        },
+        //删除评论
+        delete1: function(commentId){
+          if(this.userId == 0) return
+          url = 'http://localhost:82/del1/' + commentId
+          fetch(url)
+          .then(res => res.text())
+          .then(data => {
+            console.log(data)
+            //删除comment中id为commentId的值
+            let x = this.comments
+            let _i = -1
+            for(i=0; i<x.length; i++){
+              if(x[i].commentId == commentId){
+                _i = i
+                break
+              }
+            }
+            if(_i != -1){
+              this.comments.splice(_i, 1)
+            }
+          })
+          .catch(e => { console.log(e) })
+        },
+        //删除对某个评论的某个回复
+        delete2: function(commentId, comment2Id){
+          if(this.userId == 0) return
+          console.log(commentId)
+          console.log(comment2Id)
+          url = 'http://localhost:82/del2/' + comment2Id
+          fetch(url)
+          .then(res => res.text())
+          .then(data => {
+            console.log(data)
+            //删除comment2中id为comment2Id的值
+            let x = this.comments
+            let _i = -1
+            let _j = -1
+            for(i=0; i<x.length; i++){
+              if(x[i].commentId == commentId){
+                _i = i
+                let y = x[i].comment2
+                for(j=0; j<y.length; j++){
+                  if(y[j].comment2Id == comment2Id){
+                    _j = j
+                    break
+                  }
+                }
+                if(_j != -1){
+                  this.comments[_i].comment2.splice(_j,1)
+                }
+              }
+              if(_i != -1) break
+            }
+          })
+          .catch(e => { console.log(e) })
+        }
+      }
+    })
+</script>
+</html>

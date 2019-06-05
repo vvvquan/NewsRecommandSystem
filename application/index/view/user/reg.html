@@ -1,0 +1,338 @@
+<html>
+<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>注册页</title>
+		<link rel="stylesheet" type="text/css" href="/static/css/scroll_guanzhu.css" />
+</head>
+<style>
+body{
+    margin: 0;
+    padding: 0;
+    background-image: url('/static/image/body_repeat.png')
+}
+.container {
+	max-width: 400px;
+	margin:200px auto 0 auto;
+	position:relative;
+}
+
+#contact {
+	background:#F9F9F9;
+	padding:25px;
+	margin:5px 0;
+}
+
+#contact h3 {
+	color: #F96;
+	display: block;
+	font-size: 30px;
+	font-weight: 400;
+}
+
+fieldset {
+	border: medium none !important;
+	margin: 0 0 10px;
+	min-width: 100%;
+	padding: 0;
+	width: 100%;
+}
+
+#contact input[type="text"], 
+#contact input[type="password"] {
+	width:100%;
+	border:3px solid #CCC;
+	background:#FFF;
+	margin:0 0 5px;
+	padding:10px;
+}
+
+#contact button[name="submit"] {
+	cursor:pointer;
+	width:100%;
+	border:none;
+	background:#0CF;
+	color:#FFF;
+	margin:0 0 5px;
+	padding:10px;
+	font-size:15px;
+}
+
+#contact button[name="submit"]:hover {
+	background:#09C;
+	-webkit-transition:background 0.3s ease-in-out;
+	-moz-transition:background 0.3s ease-in-out;
+	transition:background-color 0.3s ease-in-out;
+}
+
+#contact button[name="submit"]:active { 
+    box-shadow:inset 0 1px 3px rgba(0, 0, 0, 0.5); 
+}
+
+#contact input:focus {
+	outline:0;
+	border:3px solid lightskyblue;
+	box-shadow: -2px -2px 2px lightblue, 2px 2px 2px lightblue;
+} 
+
+.Msg{
+	display: none;
+}
+.Msg.error{
+	display: block;
+	font-size: 10px;
+	color: red;
+}
+</style>
+<body>
+        <div class="container">  
+            <form id="contact" v-if="!rec">   <!-- 正常为!rec -->
+				  <h4>赶快注册加入</h4>
+                  <fieldset>
+					<input v-model="regForm.username" placeholder="用户昵称" type="text" id="username" required>
+					<span class="Msg" :class="error.isUsernameNull ? 'error': ''">用户名不能为空</span>
+					<span class="Msg" :class="error.nameExist ? 'error': ''">用户名已存在</span>
+				  </fieldset>
+                  <fieldset>
+                    <input v-model="regForm.password" placeholder="密码" type="password" id="password" required>
+					<span class="Msg" :class="error.len ? 'error': ''">密码长度少于6位</span>
+					<span class="Msg" :class="error.isNull ? 'error': ''">密码不能为空</span>
+				</fieldset>
+                  <fieldset>
+					<input v-model="regForm.repassword" placeholder="确认密码" type="password" id="repassword" required>
+					<span class="Msg" :class="error.samePassword ? 'error': ''">两次密码输入不相同</span>
+				</fieldset>
+                <fieldset>
+					<button name="submit" type="button" @click="reg()">确认</button>
+					<br/>
+					<span class="Msg" :class="error.regFail ? 'error': ''">注册失败，用户名已存在</span>
+				</fieldset>
+				<div>
+					<a href="/user/login">去登录</a>
+				</div>
+			</form> 
+
+			
+				<!-- 显示数据加载中 -->
+				<div v-if="loading">
+					<img src="/static/image/loading.gif" style="width: 30px; height: 30px;"/>
+					<span style="font-size: 30px">数据加载中</span>
+				</div>
+
+				<!-- 相关新闻来源推荐 -->
+				<div class="recFlow" v-if="rec">
+						<div style="text-align: center;font-size: 20px;width: 188px">注册成功</div>
+						<div style="padding:10px 0 0 10px">
+							相关推荐<a href="/index">(进入首页)</a>
+						</div>
+						<div class="banner">
+							<div class="user_scroll">
+								<ul id="scroll">
+									<li v-for="item in recSource" :key="item">
+										<div class="user_rec">
+											<p><img :src="['/static/image/'+item.pic]"/></p>
+											<p>{{item.name}}</p>
+											<p>
+												<button v-if="item.guanzhu">已关注</button>
+												<button v-else @click="guanzhu(item)">+ 关注</button>
+											</p>
+										</div>
+									</li>
+								</ul>  
+							</div>
+							<a href="javascript:void(0)" class="control_l" onclick="scroll_l(155)">
+								<i class="WB_icon left"></i>
+							</a>
+							<a href="javascript:void(0)" class="control_r" onclick="scroll_r(155)">
+								<i class="WB_icon right"></i>
+							</a>
+						</div>
+				</div>
+
+
+		</div> 
+</body>
+<script src="/static/js/vue-2.5.21.min.js"></script>
+<script src="/static/js/md5.js"></script>
+<script src="/static/js/scroll_guanzhu.js"></script>
+<script>
+	var vm = new Vue({
+		el: '.container',
+		data: {
+			userId: 0,
+			regForm: {
+				username: '',
+				password: '',
+				repassword: '',
+				phone: '',
+				validCode: ''  //验证码
+			},
+			error: {
+				samePassword: false, //两次密码不相同
+				isUsernameNull: false,  //用户名不能留空
+				nameExist: false,   //用户名已存在
+				isNull: false,  //密码不能留空
+				len: false,  //长度不能少于6
+				regFail: false   //注册失败
+			},
+			loading: false, //是否显示数据加载中    正常为false
+			rec: false,  //是否显示相关推荐        正常为false
+			recSource: [   //推荐用户数组
+					// {name: '中国新青年', guanzhu: false, pic: 'face.gif'},
+					// {name: '央视新闻', guanzhu: false, pic: 'face2.png'},
+					// {name: '广州日报', guanzhu: false, pic: 'face3.png'},
+					// {name: '新快报', guanzhu: false, pic: 'face4.png'},
+					// {name: '中国新青年', guanzhu: false, pic: 'face.gif'},
+					// {name: '新快报', guanzhu: false, pic: 'face4.png'},
+					// {name: '广州日报', guanzhu: false, pic: 'face.gif'},
+					// {name: '青年文摘', guanzhu: false, pic: 'face.gif'},
+					// {name: '意林', guanzhu: false, pic: 'face.gif'},
+					// {name: '读者', guanzhu: false, pic: 'face.gif'},
+					// {name: '广州日报', guanzhu: false, pic: 'face3.png'},
+					// {name: '羊城晚报', guanzhu: false, pic: 'face.gif'}
+				]
+		},
+		methods: {
+			initial(){
+			  this.error.isUsernameNull = false
+			  this.error.nameExist = false
+			  this.error.isNull = false
+			  this.error.samePassword = false
+			  this.error.len = false
+			  this.error.regFail = false
+			},
+			validateUsername(username){
+			  username = username.replace(/(^\s*)|(\s*$)/g, "") //去掉左右空格
+			  if(username.length == 0){
+					console.log('username is null')
+					this.error.isUsernameNull = true
+					return false
+			  }else{
+					console.log('username is ok')
+					return true
+			  }
+			},
+			validatePass1(password){
+			if (password == '') {
+			  console.log('请输入确认密码');
+			  this.error.isNull = true
+			  return false
+			  }
+			if (password.length < 6) {
+			  console.log('密码不得少于6位')
+			  this.error.len = true
+			  return false
+			}
+			console.log('password is ok')
+			return true
+		  },
+			validatePass2(password, repassword){
+			if (password != repassword) {
+				this.error.samePassword = true
+				console.log('两次输入密码不一致!')
+				return false
+			  } else {
+				console.log('repassword is ok')
+				return true
+			  }
+		  },
+			reg(){
+				this.initial()
+				let u = this.regForm.username
+				let p = this.regForm.password
+				let p2 = this.regForm.repassword
+			  if(this.validateUsername(u) && this.validatePass1(p) && this.validatePass2(p,p2)) {
+					console.log('submit!')
+					this.onRegSubmit()
+					return true
+			  } else {
+					console.log('error submit!!')
+					return false
+			  }
+			},
+			onRegSubmit(){  //提交注册信息
+				  var arr = {
+					'username': this.regForm.username,
+					'password': hex_md5(this.regForm.password)
+				  }
+				  var jsonStr = JSON.stringify(arr)
+				  var url = 'http://localhost:82/register'
+				  var httpHeader = { 
+						headers: { "Content-Type": "application/json" },
+						method: 'POST', 
+						body: jsonStr
+				  }
+				  fetch(url, httpHeader)
+				  .then(response => response.json())
+					.then(jsonObj => {
+						if(jsonObj['msg'] == 'fail'){
+							this.error.regFail = true
+						} else
+						if(jsonObj['msg'] == 'success'){
+							//记录用户的id和帐号名
+							this.userId = jsonObj['userId']
+							sessionStorage.setItem('userId', jsonObj['userId'])
+							sessionStorage.setItem('username', jsonObj['username'])
+							//给新用户做出推荐
+							this.getRecSource()
+						} else {
+							this.error.nameExist = true
+						}
+				  })
+				  .catch(e => {
+						this.error.regFail = true
+						console.log('error: '+e)
+				  })
+		  	},
+			//获取推荐新闻来源
+			getRecSource(){
+				this.loading = true
+				url = 'http://localhost:82/recSource'
+				fetch(url)
+				.then(res => res.json())
+				.then(jsonObj => {
+					let tmp = []
+					for(x in jsonObj) {
+						let data = {
+							name: jsonObj[x]['name'],
+							guanzhu: false,
+							pic: jsonObj[x]['pic']
+						}
+						tmp.push(data)
+					}
+					console.log(tmp)
+					this.recSource = tmp
+					this.loading = false
+					this.rec = true
+				})
+				.catch(e => console.log(e))
+			},
+			//点击关注新闻来源
+      		guanzhu: function(item){
+					if(item.guanzhu == true) return
+          			url = "http://localhost:82/guanzhu"
+					let data = {
+						'source': item.name
+					}
+					httpHeader = {
+						headers: { "Content-Type": "application/json" },
+						method: 'POST', 
+						body: JSON.stringify(data)
+					}
+          			fetch(url, httpHeader)
+          			.then(response => {
+							// for(i=0; i < recSource.length; i++){
+							// 	if(item.name == this.recSource[i]){
+							// 		this.recSource[i].guanzhu = true
+							// 		return
+							// 	}
+							// }
+						item.guanzhu = true
+          			})
+          			.catch(e => console.log('guanzhu error'))          
+			}
+		}
+	})
+</script>
+</html>
